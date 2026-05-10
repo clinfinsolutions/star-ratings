@@ -3,7 +3,8 @@
     "all_hospitals": 5426,
     "rated_2025": 2866,
     "in_hac_program": 3055,
-    "hac_penalized": 719,
+    "hac_penalized_fy_2025": 710,
+    "hac_penalized_fy_2026": 719,
     "rated_and_in_hac": 2530
   },
   "rating_distribution_2025": {
@@ -45,11 +46,530 @@
       "penalty_rate": 9.7
     }
   },
+  "movement_counts": {
+    "persistent": 442,
+    "newly_penalized": 277,
+    "escaped": 268,
+    "clean": 2006
+  },
+  "state_aggregates": [
+    {
+      "state": "VT",
+      "total_in_hac": 6,
+      "penalized_fy26": 4,
+      "penalized_fy25": 4,
+      "persistent": 4,
+      "newly_penalized": 0,
+      "escaped": 0,
+      "penalty_rate_fy26": 66.7
+    },
+    {
+      "state": "HI",
+      "total_in_hac": 11,
+      "penalized_fy26": 7,
+      "penalized_fy25": 7,
+      "persistent": 6,
+      "newly_penalized": 1,
+      "escaped": 1,
+      "penalty_rate_fy26": 63.6
+    },
+    {
+      "state": "IA",
+      "total_in_hac": 30,
+      "penalized_fy26": 16,
+      "penalized_fy25": 13,
+      "persistent": 11,
+      "newly_penalized": 5,
+      "escaped": 2,
+      "penalty_rate_fy26": 53.3
+    },
+    {
+      "state": "AK",
+      "total_in_hac": 8,
+      "penalized_fy26": 4,
+      "penalized_fy25": 2,
+      "persistent": 2,
+      "newly_penalized": 2,
+      "escaped": 0,
+      "penalty_rate_fy26": 50.0
+    },
+    {
+      "state": "WY",
+      "total_in_hac": 8,
+      "penalized_fy26": 4,
+      "penalized_fy25": 3,
+      "persistent": 3,
+      "newly_penalized": 1,
+      "escaped": 0,
+      "penalty_rate_fy26": 50.0
+    },
+    {
+      "state": "WV",
+      "total_in_hac": 25,
+      "penalized_fy26": 12,
+      "penalized_fy25": 16,
+      "persistent": 11,
+      "newly_penalized": 1,
+      "escaped": 5,
+      "penalty_rate_fy26": 48.0
+    },
+    {
+      "state": "NM",
+      "total_in_hac": 26,
+      "penalized_fy26": 11,
+      "penalized_fy25": 9,
+      "persistent": 7,
+      "newly_penalized": 4,
+      "escaped": 2,
+      "penalty_rate_fy26": 42.3
+    },
+    {
+      "state": "OR",
+      "total_in_hac": 32,
+      "penalized_fy26": 13,
+      "penalized_fy25": 12,
+      "persistent": 9,
+      "newly_penalized": 4,
+      "escaped": 3,
+      "penalty_rate_fy26": 40.6
+    },
+    {
+      "state": "NH",
+      "total_in_hac": 13,
+      "penalized_fy26": 5,
+      "penalized_fy25": 2,
+      "persistent": 2,
+      "newly_penalized": 3,
+      "escaped": 0,
+      "penalty_rate_fy26": 38.5
+    },
+    {
+      "state": "AL",
+      "total_in_hac": 77,
+      "penalized_fy26": 29,
+      "penalized_fy25": 25,
+      "persistent": 19,
+      "newly_penalized": 10,
+      "escaped": 6,
+      "penalty_rate_fy26": 37.7
+    },
+    {
+      "state": "MA",
+      "total_in_hac": 55,
+      "penalized_fy26": 20,
+      "penalized_fy25": 19,
+      "persistent": 14,
+      "newly_penalized": 6,
+      "escaped": 5,
+      "penalty_rate_fy26": 36.4
+    },
+    {
+      "state": "MT",
+      "total_in_hac": 11,
+      "penalized_fy26": 4,
+      "penalized_fy25": 1,
+      "persistent": 1,
+      "newly_penalized": 3,
+      "escaped": 0,
+      "penalty_rate_fy26": 36.4
+    },
+    {
+      "state": "KY",
+      "total_in_hac": 59,
+      "penalized_fy26": 21,
+      "penalized_fy25": 21,
+      "persistent": 14,
+      "newly_penalized": 7,
+      "escaped": 7,
+      "penalty_rate_fy26": 35.6
+    },
+    {
+      "state": "NY",
+      "total_in_hac": 129,
+      "penalized_fy26": 45,
+      "penalized_fy25": 49,
+      "persistent": 39,
+      "newly_penalized": 6,
+      "escaped": 10,
+      "penalty_rate_fy26": 34.9
+    },
+    {
+      "state": "MI",
+      "total_in_hac": 90,
+      "penalized_fy26": 30,
+      "penalized_fy25": 34,
+      "persistent": 21,
+      "newly_penalized": 9,
+      "escaped": 13,
+      "penalty_rate_fy26": 33.3
+    },
+    {
+      "state": "AR",
+      "total_in_hac": 43,
+      "penalized_fy26": 14,
+      "penalized_fy25": 10,
+      "persistent": 9,
+      "newly_penalized": 5,
+      "escaped": 1,
+      "penalty_rate_fy26": 32.6
+    },
+    {
+      "state": "ME",
+      "total_in_hac": 13,
+      "penalized_fy26": 4,
+      "penalized_fy25": 4,
+      "persistent": 3,
+      "newly_penalized": 1,
+      "escaped": 1,
+      "penalty_rate_fy26": 30.8
+    },
+    {
+      "state": "LA",
+      "total_in_hac": 82,
+      "penalized_fy26": 25,
+      "penalized_fy25": 28,
+      "persistent": 21,
+      "newly_penalized": 4,
+      "escaped": 7,
+      "penalty_rate_fy26": 30.5
+    },
+    {
+      "state": "MS",
+      "total_in_hac": 59,
+      "penalized_fy26": 18,
+      "penalized_fy25": 11,
+      "persistent": 4,
+      "newly_penalized": 14,
+      "escaped": 7,
+      "penalty_rate_fy26": 30.5
+    },
+    {
+      "state": "GA",
+      "total_in_hac": 94,
+      "penalized_fy26": 27,
+      "penalized_fy25": 33,
+      "persistent": 21,
+      "newly_penalized": 6,
+      "escaped": 12,
+      "penalty_rate_fy26": 28.7
+    },
+    {
+      "state": "CA",
+      "total_in_hac": 277,
+      "penalized_fy26": 76,
+      "penalized_fy25": 72,
+      "persistent": 48,
+      "newly_penalized": 28,
+      "escaped": 24,
+      "penalty_rate_fy26": 27.4
+    },
+    {
+      "state": "IL",
+      "total_in_hac": 114,
+      "penalized_fy26": 31,
+      "penalized_fy25": 31,
+      "persistent": 21,
+      "newly_penalized": 10,
+      "escaped": 10,
+      "penalty_rate_fy26": 27.2
+    },
+    {
+      "state": "PA",
+      "total_in_hac": 133,
+      "penalized_fy26": 36,
+      "penalized_fy25": 31,
+      "persistent": 18,
+      "newly_penalized": 18,
+      "escaped": 13,
+      "penalty_rate_fy26": 27.1
+    },
+    {
+      "state": "OH",
+      "total_in_hac": 118,
+      "penalized_fy26": 31,
+      "penalized_fy25": 31,
+      "persistent": 13,
+      "newly_penalized": 18,
+      "escaped": 18,
+      "penalty_rate_fy26": 26.3
+    },
+    {
+      "state": "WA",
+      "total_in_hac": 46,
+      "penalized_fy26": 12,
+      "penalized_fy25": 8,
+      "persistent": 7,
+      "newly_penalized": 5,
+      "escaped": 1,
+      "penalty_rate_fy26": 26.1
+    },
+    {
+      "state": "NC",
+      "total_in_hac": 80,
+      "penalized_fy26": 20,
+      "penalized_fy25": 23,
+      "persistent": 10,
+      "newly_penalized": 10,
+      "escaped": 13,
+      "penalty_rate_fy26": 25.0
+    },
+    {
+      "state": "WI",
+      "total_in_hac": 65,
+      "penalized_fy26": 16,
+      "penalized_fy25": 18,
+      "persistent": 9,
+      "newly_penalized": 7,
+      "escaped": 9,
+      "penalty_rate_fy26": 24.6
+    },
+    {
+      "state": "NE",
+      "total_in_hac": 25,
+      "penalized_fy26": 6,
+      "penalized_fy25": 4,
+      "persistent": 3,
+      "newly_penalized": 3,
+      "escaped": 1,
+      "penalty_rate_fy26": 24.0
+    },
+    {
+      "state": "MN",
+      "total_in_hac": 46,
+      "penalized_fy26": 11,
+      "penalized_fy25": 11,
+      "persistent": 6,
+      "newly_penalized": 5,
+      "escaped": 5,
+      "penalty_rate_fy26": 23.9
+    },
+    {
+      "state": "SC",
+      "total_in_hac": 51,
+      "penalized_fy26": 12,
+      "penalized_fy25": 11,
+      "persistent": 7,
+      "newly_penalized": 5,
+      "escaped": 4,
+      "penalty_rate_fy26": 23.5
+    },
+    {
+      "state": "KS",
+      "total_in_hac": 44,
+      "penalized_fy26": 10,
+      "penalized_fy25": 9,
+      "persistent": 5,
+      "newly_penalized": 5,
+      "escaped": 4,
+      "penalty_rate_fy26": 22.7
+    },
+    {
+      "state": "RI",
+      "total_in_hac": 10,
+      "penalized_fy26": 2,
+      "penalized_fy25": 0,
+      "persistent": 0,
+      "newly_penalized": 2,
+      "escaped": 0,
+      "penalty_rate_fy26": 20.0
+    },
+    {
+      "state": "OK",
+      "total_in_hac": 76,
+      "penalized_fy26": 15,
+      "penalized_fy25": 18,
+      "persistent": 9,
+      "newly_penalized": 6,
+      "escaped": 9,
+      "penalty_rate_fy26": 19.7
+    },
+    {
+      "state": "TN",
+      "total_in_hac": 78,
+      "penalized_fy26": 15,
+      "penalized_fy25": 16,
+      "persistent": 7,
+      "newly_penalized": 8,
+      "escaped": 9,
+      "penalty_rate_fy26": 19.2
+    },
+    {
+      "state": "AZ",
+      "total_in_hac": 64,
+      "penalized_fy26": 12,
+      "penalized_fy25": 9,
+      "persistent": 5,
+      "newly_penalized": 7,
+      "escaped": 4,
+      "penalty_rate_fy26": 18.8
+    },
+    {
+      "state": "NV",
+      "total_in_hac": 22,
+      "penalized_fy26": 4,
+      "penalized_fy25": 5,
+      "persistent": 3,
+      "newly_penalized": 1,
+      "escaped": 2,
+      "penalty_rate_fy26": 18.2
+    },
+    {
+      "state": "SD",
+      "total_in_hac": 17,
+      "penalized_fy26": 3,
+      "penalized_fy25": 3,
+      "persistent": 2,
+      "newly_penalized": 1,
+      "escaped": 1,
+      "penalty_rate_fy26": 17.6
+    },
+    {
+      "state": "DC",
+      "total_in_hac": 6,
+      "penalized_fy26": 1,
+      "penalized_fy25": 1,
+      "persistent": 1,
+      "newly_penalized": 0,
+      "escaped": 0,
+      "penalty_rate_fy26": 16.7
+    },
+    {
+      "state": "ND",
+      "total_in_hac": 7,
+      "penalized_fy26": 1,
+      "penalized_fy25": 1,
+      "persistent": 1,
+      "newly_penalized": 0,
+      "escaped": 0,
+      "penalty_rate_fy26": 14.3
+    },
+    {
+      "state": "MO",
+      "total_in_hac": 63,
+      "penalized_fy26": 9,
+      "penalized_fy25": 13,
+      "persistent": 6,
+      "newly_penalized": 3,
+      "escaped": 7,
+      "penalty_rate_fy26": 14.3
+    },
+    {
+      "state": "CO",
+      "total_in_hac": 51,
+      "penalized_fy26": 7,
+      "penalized_fy25": 8,
+      "persistent": 3,
+      "newly_penalized": 4,
+      "escaped": 5,
+      "penalty_rate_fy26": 13.7
+    },
+    {
+      "state": "ID",
+      "total_in_hac": 16,
+      "penalized_fy26": 2,
+      "penalized_fy25": 1,
+      "persistent": 1,
+      "newly_penalized": 1,
+      "escaped": 0,
+      "penalty_rate_fy26": 12.5
+    },
+    {
+      "state": "IN",
+      "total_in_hac": 82,
+      "penalized_fy26": 10,
+      "penalized_fy25": 13,
+      "persistent": 6,
+      "newly_penalized": 4,
+      "escaped": 7,
+      "penalty_rate_fy26": 12.2
+    },
+    {
+      "state": "TX",
+      "total_in_hac": 284,
+      "penalized_fy26": 32,
+      "penalized_fy25": 33,
+      "persistent": 14,
+      "newly_penalized": 18,
+      "escaped": 19,
+      "penalty_rate_fy26": 11.3
+    },
+    {
+      "state": "CT",
+      "total_in_hac": 27,
+      "penalized_fy26": 3,
+      "penalized_fy25": 3,
+      "persistent": 1,
+      "newly_penalized": 2,
+      "escaped": 2,
+      "penalty_rate_fy26": 11.1
+    },
+    {
+      "state": "FL",
+      "total_in_hac": 169,
+      "penalized_fy26": 18,
+      "penalized_fy25": 18,
+      "persistent": 11,
+      "newly_penalized": 7,
+      "escaped": 7,
+      "penalty_rate_fy26": 10.7
+    },
+    {
+      "state": "NJ",
+      "total_in_hac": 61,
+      "penalized_fy26": 5,
+      "penalized_fy25": 7,
+      "persistent": 2,
+      "newly_penalized": 3,
+      "escaped": 5,
+      "penalty_rate_fy26": 8.2
+    },
+    {
+      "state": "VA",
+      "total_in_hac": 71,
+      "penalized_fy26": 5,
+      "penalized_fy25": 6,
+      "persistent": 1,
+      "newly_penalized": 4,
+      "escaped": 5,
+      "penalty_rate_fy26": 7.0
+    },
+    {
+      "state": "UT",
+      "total_in_hac": 32,
+      "penalized_fy26": 1,
+      "penalized_fy25": 3,
+      "persistent": 1,
+      "newly_penalized": 0,
+      "escaped": 2,
+      "penalty_rate_fy26": 3.1
+    },
+    {
+      "state": "MD",
+      "total_in_hac": 43,
+      "penalized_fy26": 0,
+      "penalized_fy25": 0,
+      "persistent": 0,
+      "newly_penalized": 0,
+      "escaped": 0,
+      "penalty_rate_fy26": 0.0
+    },
+    {
+      "state": "DE",
+      "total_in_hac": 6,
+      "penalized_fy26": 0,
+      "penalized_fy25": 0,
+      "persistent": 0,
+      "newly_penalized": 0,
+      "escaped": 0,
+      "penalty_rate_fy26": 0.0
+    }
+  ],
   "high_rated_penalized_count": 120,
   "high_rated_penalized_5star": 21,
   "high_rated_penalized_4star": 99,
   "data_sources": {
     "star_ratings": "CMS Care Compare · 2025 Release",
-    "hac_program": "CMS HAC Reduction Program · FY2026"
+    "hac_program_2025": "CMS HAC Reduction Program · FY2025",
+    "hac_program_2026": "CMS HAC Reduction Program · FY2026"
   }
 }
