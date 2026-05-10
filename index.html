@@ -273,6 +273,13 @@
     font-family: 'Playfair Display', serif;
   }
 
+  .filter-chips-help {
+    margin-top: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+  }
   .filter-chips {
     display: flex;
     gap: 10px;
@@ -449,6 +456,18 @@
     font-weight: 500;
   }
 
+  .rating-source-note {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 12px;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .rating-source-note em {
+    font-style: italic;
+  }
+
   /* ============ HAC SECTION ============ */
   .hac-section { margin-top: 8px; }
   .hac-header { margin-bottom: 18px; }
@@ -516,6 +535,19 @@
     font-size: 13px;
     color: var(--body);
     line-height: 1.5;
+  }
+  .hac-card-score {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .hac-card-score strong {
+    color: var(--ink);
+    font-weight: 700;
   }
   .hac-insight {
     background: var(--ink);
@@ -787,6 +819,70 @@
     font-size: 13px;
   }
 
+  /* ============ METHODOLOGY ============ */
+  .methodology-section {
+    padding: 56px 56px;
+    background: var(--paper-deep);
+    border-top: 1px solid var(--rule);
+  }
+  .methodology-content {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .methodology-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .methodology-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+  }
+  .methodology-block-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .methodology-block-body {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .methodology-block-body strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .methodology-cite {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .methodology-cite a {
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+  }
+  
+  @media (max-width: 900px) {
+    .methodology-section { padding: 40px 24px; }
+    .methodology-grid { grid-template-columns: 1fr; gap: 20px; }
+  }
+
   /* ============ FOOTER ============ */
   .footer {
     padding: 24px 56px;
@@ -901,11 +997,12 @@
   <div class="hero">
     <div class="hero-eyebrow">— A FREE TOOL FROM CLINFIN SOLUTIONS —</div>
     <h1 class="hero-title">2026 Hospital Star Ratings <em>Explorer</em></h1>
-    <p class="hero-deck">Search any hospital. See if their Star Rating drops. See if they're already getting hit with the HAC Reduction Program penalty. Two penalties — measuring the same underlying performance — now both visible at once.</p>
+    <p class="hero-deck">Search any hospital. See if their HAC penalty status moved year over year. See where 2026 Star Ratings will land when CMS releases them May 13. Two penalties — measuring overlapping performance — now tracked together.</p>
     <div class="hero-meta">
-      <div class="hero-meta-item">DATA: <strong>CMS Care Compare · 2025 Release</strong></div>
+      <div class="hero-meta-item">STAR RATINGS: <strong>2025 Release</strong></div>
+      <div class="hero-meta-item">HAC PROGRAM: <strong>FY2025 + FY2026</strong></div>
       <div class="hero-meta-item">RATED: <strong id="ratedCount">— hospitals</strong></div>
-      <div class="hero-meta-item">HAC FY2026: <strong id="hacCount">— penalized</strong></div>
+      <div class="hero-meta-item">PENALIZED FY26: <strong id="hacCount">—</strong></div>
     </div>
   </div>
 
@@ -916,17 +1013,13 @@
 
     <div class="search-bar">
       <div class="search-icon"></div>
-      <input type="text" class="search-input" id="searchInput" placeholder="Hospital name or CCN (e.g. Memorial, Cleveland, 100007)" autocomplete="off" spellcheck="false" />
+      <input type="text" class="search-input" id="searchInput" placeholder="Hospital name or CCN — type at least 3 characters" autocomplete="off" spellcheck="false" />
       <div class="search-clear" id="searchClear" style="display: none;">Clear</div>
       <div class="search-suggestions" id="searchSuggestions"></div>
     </div>
 
-    <div class="filter-chips" id="filterChips">
-      <div class="chip active" data-filter="state" data-value="">All States</div>
-      <div class="chip" data-filter="type" data-value="Acute Care">Acute Care</div>
-      <div class="chip" data-filter="type" data-value="Critical Access">Critical Access</div>
-      <div class="chip" data-filter="type" data-value="Children">Children's</div>
-      <div class="chip" data-filter="rating" data-value="penalized-high">High-Rated + HAC Penalty</div>
+    <div class="filter-chips-help">
+      <em>Search any of 5,426 US hospitals by name or CCN.</em>
     </div>
   </div>
 
@@ -965,12 +1058,13 @@
         <div class="rating-card-stars" id="stars2026"></div>
       </div>
     </div>
+    <p class="rating-source-note"><em>Source: CMS Overall Hospital Star Rating · 2025 Release published Apr 30, 2025 · 2026 Release scheduled May 13, 2026.</em></p>
 
     <!-- HAC SECTION -->
     <div class="hac-section">
       <div class="hac-header">
-        <div class="hac-header-title">HAC Reduction Program <em>status.</em></div>
-        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction.</div>
+        <div class="hac-header-title">HAC Reduction Program <em>year over year.</em></div>
+        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction. The threshold is recalculated each fiscal year using a 24-month measurement window: <strong>FY2025 covers Jul 2021–Dec 2023</strong>, and <strong>FY2026 covers Jul 2022–Dec 2024</strong>.</div>
       </div>
 
       <div class="hac-row" id="hacRow">
@@ -987,32 +1081,32 @@
   <div class="aggregate-section">
     <div class="section-eyebrow">— Step 02 · See the Pattern —</div>
     <h2 class="section-title">The dual-penalty <em>signal.</em></h2>
-    <p class="section-subtitle">HAC penalty rates climb sharply as Star Ratings fall. The two travel together.</p>
+    <p class="section-subtitle">FY2026 HAC penalty rates by state and by Star Rating. The two penalties travel together.</p>
 
     <div class="aggregate-row">
 
-      <!-- Drops table - high-rated penalized hospitals -->
+      <!-- State aggregates -->
       <div class="drops-table">
         <div class="drops-table-header">
-          <div class="drops-table-title" id="dropsTableTitle">High-rated hospitals with HAC penalty</div>
-          <div class="drops-table-subtitle" id="dropsTableSubtitle">4- and 5-star hospitals that received the FY2026 HAC Reduction Program penalty. <strong>Click any row</strong> to see details.</div>
+          <div class="drops-table-title" id="dropsTableTitle">FY2026 HAC penalty rate by state</div>
+          <div class="drops-table-subtitle" id="dropsTableSubtitle">States with at least 5 hospitals in the HAC Reduction Program. Sorted by penalty rate.</div>
         </div>
 
-        <table class="drops-tbl" id="dropsTable">
+        <table class="drops-tbl" id="stateTable">
           <thead>
             <tr>
-              <th data-sort="name">Hospital</th>
-              <th data-sort="state" class="state">State</th>
-              <th data-sort="rating_2025" class="right sorted">Stars</th>
-              <th data-sort="hac_score" class="right">HAC Score</th>
-              <th data-sort="penalty" class="right">Penalty</th>
+              <th data-sort="rate" class="sorted">State</th>
+              <th data-sort="total" class="right">In HAC</th>
+              <th data-sort="penalized" class="right">Penalized</th>
+              <th data-sort="persistent" class="right">Persistent</th>
+              <th data-sort="rate" class="right">Rate</th>
             </tr>
           </thead>
-          <tbody id="dropsTableBody">
+          <tbody id="stateTableBody">
             <!-- Filled by JS -->
           </tbody>
         </table>
-        <div class="table-footer" id="dropsTableFooter">— Loading —</div>
+        <div class="table-footer" id="stateTableFooter">— Loading —</div>
       </div>
 
       <!-- Distribution chart -->
@@ -1039,10 +1133,42 @@
       <div class="hook-eyebrow">— Why this tool exists —</div>
       <h2 class="hook-title">Many hospitals are getting hit twice <em>for the same problem.</em></h2>
       <p class="hook-body">A meaningful share of PSI and HAC flags trace back to documentation accuracy, POA designation, and coding integrity — issues that drive both Star Ratings and HAC penalties, and are correctable before the calculation period closes. AlignIQ™ is the framework I built to catch them.</p>
-      <a href="https://www.linkedin.com/in/deanna-payne" class="hook-cta" target="_blank" rel="noopener">Learn about the AlignIQ Framework</a>
+      <a href="https://www.linkedin.com/posts/deanna-payne_aligniq-a-framework-for-reducing-false-activity-7457776425887100928-hpOl" class="hook-cta" target="_blank" rel="noopener">Learn about the AlignIQ Framework</a>
       <div class="hook-byline">
         <strong>Deanna Payne</strong> · MSN, RN, CCDS, CCDS-O<br>
-        Founder, Clinfin Solutions · Outpatient CDI Leader, Kettering Health
+        Founder, Clinfin Solutions
+      </div>
+    </div>
+  </div>
+
+  <!-- METHODOLOGY -->
+  <div class="methodology-section">
+    <div class="methodology-content">
+      <div class="methodology-eyebrow">— Data Sources & Methodology —</div>
+      <div class="methodology-grid">
+        <div class="methodology-block">
+          <div class="methodology-block-title">CMS Overall Hospital Star Rating</div>
+          <div class="methodology-block-body">
+            Sourced from the <strong>Hospital General Information</strong> dataset on the CMS Provider Data Catalog. <strong>2025 Release</strong> was published April 30, 2025 and reflects measure performance windows that vary by individual measure (typically 12–36 months ending 6 months prior to release). The <strong>2026 Release</strong> is scheduled for May 13, 2026; this tool will display the comparison once the release is live.
+          </div>
+        </div>
+        <div class="methodology-block">
+          <div class="methodology-block-title">CMS HAC Reduction Program</div>
+          <div class="methodology-block-body">
+            Sourced from CMS HAC Reduction Program Hospital files. The Total HAC Score is calculated from PSI 90 (Patient Safety Indicator composite) and five hospital-acquired infection measures (CLABSI, CAUTI, SSI, CDI, MRSA). Hospitals in the worst-performing quartile receive a 1% Medicare payment reduction.
+            <br><br>
+            <strong>FY2025</strong> measurement windows: PSI 90 covers Jul 2021–Jun 2023; HAI measures cover Jan 2022–Dec 2023. <strong>FY2026</strong> measurement windows: PSI 90 covers Jul 2022–Jun 2024; HAI measures cover Jan 2023–Dec 2024.
+          </div>
+        </div>
+        <div class="methodology-block">
+          <div class="methodology-block-title">A note on correlation</div>
+          <div class="methodology-block-body">
+            Star Rating's Safety of Care measure group and the HAC Reduction Program use overlapping but not identical measure sets and statistical methods. The two penalties are <strong>highly correlated but not equivalent</strong>: HAC penalty status is a strong predictor of Safety of Care quartile placement, but exceptions exist. Both are influenced by the underlying documentation, coding, and POA designation accuracy of the same set of cases.
+          </div>
+        </div>
+      </div>
+      <div class="methodology-cite">
+        Verify any individual hospital directly at <a href="https://data.cms.gov/provider-data" target="_blank" rel="noopener">data.cms.gov/provider-data</a>.
       </div>
     </div>
   </div>
@@ -1093,7 +1219,7 @@ function initializePage() {
   document.getElementById('ratedCount').textContent = 
     METADATA.totals.rated_2025.toLocaleString() + ' hospitals';
   document.getElementById('hacCount').textContent = 
-    METADATA.totals.hac_penalized.toLocaleString() + ' penalized';
+    METADATA.totals.hac_penalized_fy_2026.toLocaleString() + ' hospitals';
 
   // Set up search
   setupSearch();
@@ -1123,7 +1249,7 @@ function setupSearch() {
   input.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
     clearBtn.style.display = q ? 'block' : 'none';
-    if (q.length < 2) {
+    if (q.length < 3) {
       suggestions.classList.remove('show');
       return;
     }
@@ -1131,7 +1257,7 @@ function setupSearch() {
   });
 
   input.addEventListener('focus', () => {
-    if (input.value.trim().length >= 2) showSuggestions(input.value.trim().toLowerCase());
+    if (input.value.trim().length >= 3) showSuggestions(input.value.trim().toLowerCase());
   });
 
   clearBtn.addEventListener('click', () => {
@@ -1150,7 +1276,7 @@ function setupSearch() {
 
 function showSuggestions(q) {
   const suggestions = document.getElementById('searchSuggestions');
-  const matches = searchHospitals(q).slice(0, 12);
+  const matches = searchHospitals(q).slice(0, 5);
   
   if (matches.length === 0) {
     suggestions.innerHTML = '<div class="suggestion-empty">No hospitals match that search.</div>';
@@ -1305,7 +1431,7 @@ function renderHACSection(h) {
     // Not in HAC program (e.g. Critical Access, Children's, Psychiatric)
     row.innerHTML = `
       <div class="hac-card no-data" style="grid-column: 1 / -1;">
-        <div class="hac-card-fy">— FY2026 —</div>
+        <div class="hac-card-fy">— HAC PROGRAM —</div>
         <div class="hac-card-status">Not Subject to HAC Reduction Program</div>
         <div class="hac-card-detail">${h.hospital_type} hospitals are typically excluded from the HAC Reduction Program. The program applies to acute care hospitals subject to the Inpatient Prospective Payment System.</div>
       </div>
@@ -1314,190 +1440,146 @@ function renderHACSection(h) {
     return;
   }
 
-  const penalty = h.hac.penalty;
-  const score = h.hac.total_score;
+  const p25 = h.hac.fy_2025.penalty;
+  const p26 = h.hac.fy_2026.penalty;
+  const s25 = h.hac.fy_2025.total_score;
+  const s26 = h.hac.fy_2026.total_score;
+  const movement = h.hac.movement;
+
+  // Render FY2025 card
+  const card2025 = renderHACCard('FY2025', p25, s25);
+  // Render FY2026 card
+  const card2026 = renderHACCard('FY2026', p26, s26);
+
+  row.innerHTML = card2025 + card2026;
+
+  // Insight callout based on movement
+  insight.style.display = 'block';
+  let insightText = '';
+
+  if (movement === 'persistent') {
+    insightText = `Penalized in <strong style="font-style: normal; color: var(--white); font-weight: 700;">both FY2025 and FY2026</strong>. A persistent pattern in the bottom HAC quartile suggests the underlying performance issues haven't shifted year over year — and the same factors influence the new 2026 Star Rating Safety of Care cap.`;
+  } else if (movement === 'newly_penalized') {
+    insightText = `<strong style="font-style: normal; color: var(--white); font-weight: 700;">Newly penalized in FY2026.</strong> This hospital escaped the penalty in FY2025 but landed in the bottom quartile this year. Performance on PSI 90 or HAI measures shifted enough to cross the threshold.`;
+  } else if (movement === 'escaped') {
+    insightText = `<strong style="font-style: normal; color: var(--white); font-weight: 700;">Escaped the penalty in FY2026.</strong> This hospital was penalized in FY2025 but improved enough to clear the threshold this year. Worth investigating what changed.`;
+  } else if (movement === 'clean') {
+    insightText = `Not penalized in either FY2025 or FY2026. Hospital has stayed above the lowest-quartile threshold across two cycles.`;
+  } else {
+    insight.style.display = 'none';
+    return;
+  }
+
+  // Add Star Rating context if applicable
+  if (h.rating_2025 && h.rating_2025 >= 4 && p26 === 'Yes') {
+    insightText += ` Note: this hospital is currently rated ${h.rating_2025} stars overall.`;
+  }
+
+  insight.innerHTML = insightText;
+}
+
+function renderHACCard(fy, penalty, score) {
+  let cls = 'no-data';
+  let statusText = 'Insufficient Data';
+  let detailText = `This hospital does not have sufficient measure data for HAC scoring in ${fy}.`;
 
   if (penalty === 'Yes') {
-    row.innerHTML = `
-      <div class="hac-card penalized">
-        <div class="hac-card-fy">— FY2026 STATUS —</div>
-        <div class="hac-card-status">Penalized</div>
-        <div class="hac-card-detail">1% Medicare base operating DRG payment reduction applied through Sept 30, 2026.</div>
-      </div>
-      <div class="hac-card no-data">
-        <div class="hac-card-fy">— TOTAL HAC SCORE —</div>
-        <div class="hac-card-status">${score !== null ? score.toFixed(4) : '—'}</div>
-        <div class="hac-card-detail">Higher scores indicate worse performance. Hospitals in the worst-performing 25% (lowest quartile) of HAC scores receive the payment reduction.</div>
-      </div>
-    `;
-    insight.style.display = 'block';
-    
-    if (h.rating_2025 && h.rating_2025 >= 4) {
-      insight.textContent = `This hospital is rated ${h.rating_2025} stars overall — but received the FY2026 HAC penalty. The same underlying performance issues that triggered the HAC penalty may also influence the Safety of Care quartile placement that drives the new 2026 Star Rating cap.`;
-    } else if (h.rating_2025) {
-      insight.textContent = `${h.rating_2025}-star rating and HAC penalty applied. Safety of Care performance — driven heavily by PSI 90 and HAI measures — is what links these two penalties together.`;
-    } else {
-      insight.textContent = `HAC penalty applied. The Star Rating and HAC Reduction Program both measure aspects of hospital safety performance — and both are influenced by documentation, coding, and POA accuracy.`;
-    }
+    cls = 'penalized';
+    statusText = 'Penalized';
+    const yearNum = parseInt(fy.replace('FY', ''));
+    detailText = `1% Medicare payment reduction applied for ${fy} (Oct ${yearNum - 1} – Sep ${yearNum}). The reduction is applied to base operating DRG payments — typically $500K–$2M for a community hospital, $5M+ for a large academic medical center.`;
   } else if (penalty === 'No') {
-    row.innerHTML = `
-      <div class="hac-card not-penalized">
-        <div class="hac-card-fy">— FY2026 STATUS —</div>
-        <div class="hac-card-status">Not Penalized</div>
-        <div class="hac-card-detail">No 1% Medicare payment reduction in FY2026. Hospital scored above the lowest-performing 25% threshold.</div>
-      </div>
-      <div class="hac-card no-data">
-        <div class="hac-card-fy">— TOTAL HAC SCORE —</div>
-        <div class="hac-card-status">${score !== null ? score.toFixed(4) : '—'}</div>
-        <div class="hac-card-detail">Higher scores indicate worse performance. This hospital scored above the lowest 25% threshold and avoided the penalty.</div>
-      </div>
-    `;
-    insight.style.display = 'none';
-  } else {
-    // N/A
-    row.innerHTML = `
-      <div class="hac-card no-data" style="grid-column: 1 / -1;">
-        <div class="hac-card-fy">— FY2026 STATUS —</div>
-        <div class="hac-card-status">Insufficient Data</div>
-        <div class="hac-card-detail">This hospital does not have sufficient measure data for HAC Reduction Program scoring in FY2026.</div>
-      </div>
-    `;
-    insight.style.display = 'none';
+    cls = 'not-penalized';
+    statusText = 'Not Penalized';
+    detailText = `No payment reduction in ${fy}. Hospital scored above the lowest-quartile threshold.`;
+  } else if (penalty === null) {
+    cls = 'no-data';
+    statusText = 'Not in Program';
+    detailText = `This hospital was not in the ${fy} HAC Reduction Program file.`;
   }
+
+  const scoreLine = (score !== null && score !== undefined)
+    ? `<div class="hac-card-score">HAC Score: <strong>${score.toFixed(4)}</strong></div>`
+    : '';
+
+  return `
+    <div class="hac-card ${cls}">
+      <div class="hac-card-fy">— ${fy} STATUS —</div>
+      <div class="hac-card-status">${statusText}</div>
+      <div class="hac-card-detail">${detailText}</div>
+      ${scoreLine}
+    </div>
+  `;
 }
 
 // ============ FILTERS ============
 function setupFilters() {
-  const chips = document.querySelectorAll('.chip');
-  chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      const filter = chip.getAttribute('data-filter');
-      const value = chip.getAttribute('data-value');
-      
-      // Special handling for "penalized-high" — toggle it
-      if (filter === 'rating' && value === 'penalized-high') {
-        if (chip.classList.contains('active')) {
-          chip.classList.remove('active');
-          activeFilters.special = '';
-          // Reactivate "All States"
-          document.querySelector('.chip[data-filter="state"]').classList.add('active');
-        } else {
-          // Deactivate all chips
-          chips.forEach(c => c.classList.remove('active'));
-          chip.classList.add('active');
-          activeFilters = { state: '', type: '', special: 'penalized-high' };
-        }
-      } else {
-        // Standard chip behavior - exclusive within group
-        chips.forEach(c => {
-          if (c.getAttribute('data-filter') === filter) {
-            c.classList.remove('active');
-          }
-        });
-        chip.classList.add('active');
-        activeFilters[filter] = value;
-        // Clear special if a regular filter is selected
-        if (filter !== 'rating') activeFilters.special = '';
-      }
-      
-      renderDropsTable();
-    });
-  });
+  // No-op: filter chips removed
 }
 
-// ============ DROPS TABLE ============
+// ============ STATE TABLE ============
+let stateSort = { col: 'rate', asc: false };
+
 function setupTableSort() {
-  document.querySelectorAll('.drops-tbl th[data-sort]').forEach(th => {
+  document.querySelectorAll('#stateTable th[data-sort]').forEach(th => {
     th.addEventListener('click', () => {
       const col = th.getAttribute('data-sort');
-      if (dropsSort.col === col) {
-        dropsSort.asc = !dropsSort.asc;
+      if (stateSort.col === col) {
+        stateSort.asc = !stateSort.asc;
       } else {
-        dropsSort.col = col;
-        dropsSort.asc = false;
+        stateSort.col = col;
+        stateSort.asc = false;
       }
-      renderDropsTable();
+      renderStateTable();
     });
   });
 }
 
 function renderDropsTable() {
-  const tbody = document.getElementById('dropsTableBody');
-  const footer = document.getElementById('dropsTableFooter');
-  const title = document.getElementById('dropsTableTitle');
-  const subtitle = document.getElementById('dropsTableSubtitle');
+  // Backwards-compat shim — calls the new state table render
+  renderStateTable();
+}
 
-  // Determine which hospitals to show
-  let pool = HOSPITALS.filter(h => h.rating_2025 && h.hac.in_program);
-
-  // Apply filters
-  if (activeFilters.special === 'penalized-high') {
-    pool = pool.filter(h => h.rating_2025 >= 4 && h.hac.penalty === 'Yes');
-    title.textContent = 'High-rated hospitals with HAC penalty';
-    subtitle.innerHTML = '4- and 5-star hospitals that received the FY2026 HAC Reduction Program penalty. <strong>Click any row</strong> to see details.';
-  } else {
-    // Default view: all penalized hospitals
-    pool = pool.filter(h => h.hac.penalty === 'Yes');
-    title.textContent = 'Hospitals with FY2026 HAC penalty';
-    subtitle.innerHTML = 'All hospitals that received the 1% Medicare payment reduction. <strong>Click any row</strong> to see details.';
-  }
-
-  if (activeFilters.type === 'Acute Care') {
-    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Acute Care'));
-  } else if (activeFilters.type === 'Critical Access') {
-    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Critical Access'));
-  } else if (activeFilters.type === 'Children') {
-    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Childrens'));
-  }
-
-  // Sort
-  const sortKey = dropsSort.col;
-  const dir = dropsSort.asc ? 1 : -1;
-  pool.sort((a, b) => {
+function renderStateTable() {
+  const tbody = document.getElementById('stateTableBody');
+  const footer = document.getElementById('stateTableFooter');
+  if (!tbody) return;
+  
+  const states = [...METADATA.state_aggregates];
+  const sortKey = stateSort.col;
+  const dir = stateSort.asc ? 1 : -1;
+  
+  states.sort((a, b) => {
     let av, bv;
-    if (sortKey === 'name') { av = a.name || ''; bv = b.name || ''; return dir * av.localeCompare(bv); }
     if (sortKey === 'state') { av = a.state || ''; bv = b.state || ''; return dir * av.localeCompare(bv); }
-    if (sortKey === 'rating_2025') { av = a.rating_2025 || 0; bv = b.rating_2025 || 0; return dir * (av - bv); }
-    if (sortKey === 'hac_score') { av = a.hac.total_score ?? -999; bv = b.hac.total_score ?? -999; return dir * (av - bv); }
-    if (sortKey === 'penalty') { 
-      const penOrder = { 'Yes': 2, 'No': 1, 'N/A': 0, null: -1 };
-      av = penOrder[a.hac.penalty] ?? -1; 
-      bv = penOrder[b.hac.penalty] ?? -1; 
-      return dir * (av - bv); 
-    }
+    if (sortKey === 'total') { av = a.total_in_hac; bv = b.total_in_hac; return dir * (av - bv); }
+    if (sortKey === 'penalized') { av = a.penalized_fy26; bv = b.penalized_fy26; return dir * (av - bv); }
+    if (sortKey === 'persistent') { av = a.persistent; bv = b.persistent; return dir * (av - bv); }
+    if (sortKey === 'rate') { av = a.penalty_rate_fy26; bv = b.penalty_rate_fy26; return dir * (av - bv); }
     return 0;
   });
-
+  
   // Update sort indicators
-  document.querySelectorAll('.drops-tbl th').forEach(th => {
+  document.querySelectorAll('#stateTable th').forEach(th => {
     th.classList.remove('sorted', 'asc');
     if (th.getAttribute('data-sort') === sortKey) {
       th.classList.add('sorted');
-      if (dropsSort.asc) th.classList.add('asc');
+      if (stateSort.asc) th.classList.add('asc');
     }
   });
-
-  // Render top 25
-  const display = pool.slice(0, 25);
-  tbody.innerHTML = display.map(h => `
-    <tr data-ccn="${h.ccn}">
-      <td class="name">${escapeHtml(h.name)}</td>
-      <td class="state">${h.state}</td>
-      <td class="right">${h.rating_2025 || '—'}</td>
-      <td class="right">${h.hac.total_score !== null ? h.hac.total_score.toFixed(4) : '—'}</td>
-      <td class="right">${h.hac.penalty === 'Yes' ? '<span class="hac-pill yes">⚠ Yes</span>' : '<span class="hac-pill no">— No</span>'}</td>
+  
+  // Render all states
+  tbody.innerHTML = states.map(s => `
+    <tr>
+      <td class="name">${s.state}</td>
+      <td class="right">${s.total_in_hac}</td>
+      <td class="right">${s.penalized_fy26}</td>
+      <td class="right">${s.persistent}</td>
+      <td class="right"><strong>${s.penalty_rate_fy26}%</strong></td>
     </tr>
   `).join('');
-
-  // Click rows to select
-  tbody.querySelectorAll('tr').forEach(tr => {
-    tr.addEventListener('click', () => {
-      selectHospital(tr.getAttribute('data-ccn'));
-    });
-  });
-
-  // Footer
-  footer.textContent = `Showing ${display.length} of ${pool.length}`;
+  
+  footer.textContent = `${states.length} states · Sorted by ${sortKey === 'rate' ? 'penalty rate' : sortKey} ${stateSort.asc ? '↑' : '↓'}`;
 }
 
 // ============ DISTRIBUTION CHART ============
