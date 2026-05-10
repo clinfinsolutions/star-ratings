@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Hospital Star Ratings Explorer — Clinfin Solutions</title>
+<meta name="description" content="A free tool from Clinfin Solutions. Search any hospital, see the dual-penalty pattern between Star Ratings and HAC Reduction Program penalties.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #283C50;
+    --ink-soft: #3C4650;
+    --body: #5A6470;
+    --muted: #8A9AAD;
+    --light: #C8D2DD;
+    --paper-deep: #F4F6F8;
+    --paper: #FAFBFC;
+    --rule: #DCDCDC;
+    --white: #FFFFFF;
+    --accent-up: #6B7C92;
+    --accent-down: #283C50;
+    --accent-flat: #B6BFCE;
+    --pill-down-bg: rgba(40, 60, 80, 0.08);
+    --pill-down-color: #283C50;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--paper);
+    color: var(--ink-soft);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+  }
+
+  /* ============ DEMO BANNER ============ */
+  .demo-banner {
+    background: var(--accent-up);
+    color: var(--white);
+    padding: 10px 56px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* ============ TOP STRIP ============ */
+  .top-strip {
+    background: var(--ink);
+    color: var(--white);
+    padding: 14px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .top-strip-meta::before {
+    content: '●';
+    color: var(--light);
+    margin-right: 6px;
+  }
+  .top-strip-meta {
+    color: var(--light);
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 56px 56px 40px 56px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1.05;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+  .hero-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .hero-deck {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--body);
+    line-height: 1.45;
+    max-width: 880px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-wrap: wrap;
+  }
+  .hero-meta-item strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ============ COMMON ============ */
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .section-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .section-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--body);
+    margin-bottom: 28px;
+  }
+
+  /* ============ SEARCH SECTION ============ */
+  .search-section {
+    padding: 36px 56px 36px 56px;
+    background: var(--paper-deep);
+  }
+  .search-bar {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+    position: relative;
+  }
+  .search-bar:focus-within {
+    border-color: var(--ink);
+  }
+  .search-icon {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .search-icon::after {
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 2px;
+    background: var(--ink);
+    bottom: -3px;
+    right: -5px;
+    transform: rotate(45deg);
+  }
+  .search-input {
+    flex: 1;
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 4px 0;
+  }
+  .search-input::placeholder {
+    color: var(--muted);
+  }
+  .search-clear {
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    background: var(--paper-deep);
+  }
+  .search-clear:hover { background: var(--light); }
+  
+  .search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    right: -1px;
+    background: var(--white);
+    border: 1px solid var(--ink);
+    border-top: none;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
+  }
+  .search-suggestions.show { display: block; }
+  .suggestion-item {
+    padding: 10px 22px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: var(--paper-deep);
+  }
+  .suggestion-item .name {
+    font-family: 'Playfair Display', serif;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .suggestion-item .meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .suggestion-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    background: var(--white);
+    border: 1px solid var(--rule);
+    padding: 7px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip.active {
+    background: var(--ink);
+    color: var(--white);
+    border-color: var(--ink);
+  }
+
+  /* ============ HOSPITAL DETAIL ============ */
+  .hospital-detail {
+    padding: 40px 56px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .hospital-detail.hidden { display: none; }
+
+  .hospital-name-block {
+    margin-bottom: 28px;
+  }
+  .hospital-name-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .hospital-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 36px;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .hospital-meta {
+    margin-top: 8px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    color: var(--body);
+  }
+
+  /* RATING CHANGE ROW */
+  .rating-change-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+    margin-bottom: 28px;
+    background: var(--paper-deep);
+    border-top: 4px solid var(--ink);
+  }
+  .rating-card {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .rating-card.prior {
+    text-align: right;
+    border-right: 1px solid var(--rule);
+  }
+  .rating-card.current {
+    text-align: left;
+  }
+  .rating-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .rating-card-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 84px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+  .rating-card-value.unavailable {
+    font-size: 32px;
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.2;
+    padding: 24px 0;
+  }
+  .rating-card-value-suffix {
+    font-size: 22px;
+    color: var(--body);
+    font-weight: 400;
+    font-style: italic;
+    margin-left: 6px;
+  }
+  .rating-card-stars {
+    color: var(--ink);
+    font-size: 22px;
+    margin-top: 8px;
+    letter-spacing: 4px;
+  }
+  .rating-card-stars .empty {
+    color: var(--light);
+  }
+
+  .rating-change-indicator {
+    width: 200px;
+    background: var(--ink);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    text-align: center;
+  }
+  .rating-change-indicator.up { background: var(--accent-up); }
+  .rating-change-indicator.flat { background: var(--accent-flat); color: var(--ink); }
+  .rating-change-indicator.pending {
+    background: var(--paper-deep);
+    color: var(--ink);
+    border-left: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+  }
+
+  .rating-change-arrow {
+    font-size: 56px;
+    line-height: 1;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .rating-change-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    color: var(--light);
+    margin-bottom: 4px;
+  }
+  .rating-change-indicator.flat .rating-change-label,
+  .rating-change-indicator.pending .rating-change-label { color: var(--muted); }
+  .rating-change-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .rating-change-indicator.pending .rating-change-value {
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  /* ============ HAC SECTION ============ */
+  .hac-section { margin-top: 8px; }
+  .hac-header { margin-bottom: 18px; }
+  .hac-header-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .hac-header-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .hac-header-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--body);
+    line-height: 1.5;
+    max-width: 760px;
+  }
+  .hac-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .hac-card {
+    background: var(--paper-deep);
+    padding: 22px 24px 20px 24px;
+    border-top: 3px solid var(--accent-flat);
+  }
+  .hac-card.penalized { border-top-color: var(--ink); }
+  .hac-card.not-penalized { border-top-color: var(--accent-up); }
+  .hac-card.no-data { border-top-color: var(--light); }
+  .hac-card-fy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .hac-card-status {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .hac-card.not-penalized .hac-card-status,
+  .hac-card.no-data .hac-card-status {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .hac-card.no-data .hac-card-status { color: var(--muted); }
+  .hac-card-detail {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    color: var(--body);
+    line-height: 1.5;
+  }
+  .hac-insight {
+    background: var(--ink);
+    color: var(--white);
+    padding: 18px 24px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Empty state when no hospital selected */
+  .empty-state {
+    padding: 80px 56px;
+    text-align: center;
+    background: var(--paper-deep);
+  }
+  .empty-state-icon {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    color: var(--light);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .empty-state-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  /* ============ AGGREGATE SECTION ============ */
+  .aggregate-section {
+    padding: 56px 56px;
+    background: var(--paper-deep);
+    border-top: 1px solid var(--rule);
+  }
+  .aggregate-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 28px;
+    margin-top: 24px;
+  }
+  .drops-table {
+    background: var(--white);
+    padding: 24px;
+  }
+  .drops-table-header { margin-bottom: 16px; }
+  .drops-table-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .drops-table-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--body);
+  }
+  .drops-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+  .drops-tbl th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 6px;
+    border-bottom: 1.5px solid var(--rule);
+    cursor: pointer;
+    user-select: none;
+  }
+  .drops-tbl th:hover { color: var(--ink); }
+  .drops-tbl th.right { text-align: right; }
+  .drops-tbl th.sorted::after {
+    content: ' ↓';
+    color: var(--ink);
+  }
+  .drops-tbl th.sorted.asc::after {
+    content: ' ↑';
+  }
+  .drops-tbl td {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+  .drops-tbl tr { cursor: pointer; }
+  .drops-tbl tr:hover td { background: var(--paper-deep); }
+  .drops-tbl td.right { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; }
+  .drops-tbl td.name {
+    font-family: 'Playfair Display', serif;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .drops-tbl td.state {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+  .change-pill {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .change-pill.down {
+    background: var(--pill-down-bg);
+    color: var(--pill-down-color);
+  }
+  .hac-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .hac-pill.yes {
+    background: var(--ink);
+    color: var(--white);
+  }
+  .hac-pill.no {
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .table-footer {
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  /* Distribution chart */
+  .distribution-card {
+    background: var(--white);
+    padding: 24px;
+  }
+  .distribution-bars { margin-top: 28px; }
+  .dist-bar-row { margin-bottom: 18px; }
+  .dist-bar-row:last-child { margin-bottom: 0; }
+  .dist-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .dist-bar-label .count { color: var(--ink-soft); }
+  .dist-bar-track {
+    height: 22px;
+    background: var(--paper-deep);
+  }
+  .dist-bar-fill { height: 100%; transition: width 0.4s ease; }
+  .dist-bar-fill.tier-1 { background: var(--ink); }
+  .dist-bar-fill.tier-2 { background: #4A5566; }
+  .dist-bar-fill.tier-3 { background: var(--accent-up); }
+  .dist-bar-fill.tier-4 { background: var(--accent-flat); }
+  .dist-bar-fill.tier-5 { background: var(--light); }
+
+  .insight-callout {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--body);
+    line-height: 1.5;
+  }
+  .insight-callout strong {
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ============ HOOK ============ */
+  .hook {
+    padding: 56px 56px;
+    background: var(--ink);
+    color: var(--white);
+  }
+  .hook-content {
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .hook-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--light);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .hook-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 34px;
+    color: var(--white);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin-bottom: 18px;
+  }
+  .hook-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--light);
+  }
+  .hook-body {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--light);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hook-cta {
+    display: inline-block;
+    padding: 13px 28px;
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .hook-cta::after { content: ' →'; }
+  .hook-cta:hover { background: var(--light); }
+  .hook-byline {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(200, 210, 221, 0.25);
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    color: var(--light);
+    line-height: 1.7;
+  }
+  .hook-byline strong {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--white);
+    font-size: 13px;
+  }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    padding: 24px 56px;
+    background: var(--white);
+    border-top: 2px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    font-weight: 600;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    color: var(--ink);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 14px;
+  }
+  .footer-brand em {
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  /* ============ LOADING ============ */
+  .loading-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+  }
+  .loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .loading-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--muted);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .hero { padding: 40px 24px 32px 24px; }
+    .hero-title { font-size: 32px; }
+    .hero-deck { font-size: 16px; }
+    .hero-meta { gap: 16px; font-size: 10px; }
+    .search-section { padding: 24px; }
+    .hospital-detail { padding: 32px 24px; }
+    .hospital-name { font-size: 26px; }
+    .rating-change-row {
+      grid-template-columns: 1fr;
+    }
+    .rating-card {
+      text-align: center !important;
+      border-right: none !important;
+      border-bottom: 1px solid var(--rule);
+      padding: 20px;
+    }
+    .rating-card.current { border-bottom: none; }
+    .rating-change-indicator {
+      width: 100%;
+      padding: 20px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .rating-change-arrow { font-size: 36px; }
+    .rating-card-value { font-size: 56px; }
+    .hac-row { grid-template-columns: 1fr; }
+    .aggregate-section { padding: 32px 24px; }
+    .aggregate-row { grid-template-columns: 1fr; }
+    .hook { padding: 40px 24px; }
+    .hook-title { font-size: 26px; }
+    .hook-body { font-size: 15px; }
+    .footer { padding: 20px 24px; }
+    .top-strip { padding: 12px 24px; font-size: 9px; flex-direction: column; gap: 6px; }
+    .demo-banner { padding: 8px 24px; font-size: 9px; }
+    .filter-chips .chip { font-size: 9px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-text">Loading hospital data…</div>
+</div>
+
+<div class="page">
+
+  <!-- DEMO BANNER (will be removed/hidden after May 13) -->
+  <div class="demo-banner" id="demoBanner">
+    DEMO MODE · 2026 STAR RATINGS PUBLISH MAY 13, 2026 · CHECK BACK FOR LIVE DATA
+  </div>
+
+  <!-- TOP STRIP -->
+  <div class="top-strip">
+    <div><strong>CLINFIN SOLUTIONS</strong> · ALIGNIQ™ FRAMEWORK</div>
+    <div class="top-strip-meta" id="topStripMeta">2026 STAR RATINGS · PRE-LAUNCH</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">— A FREE TOOL FROM CLINFIN SOLUTIONS —</div>
+    <h1 class="hero-title">2026 Hospital Star Ratings <em>Explorer</em></h1>
+    <p class="hero-deck">Search any hospital. See if their Star Rating drops. See if they're already getting hit with the HAC Reduction Program penalty. Two penalties — measuring the same underlying performance — now both visible at once.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">DATA: <strong>CMS Care Compare · 2025 Release</strong></div>
+      <div class="hero-meta-item">RATED: <strong id="ratedCount">— hospitals</strong></div>
+      <div class="hero-meta-item">HAC FY2026: <strong id="hacCount">— penalized</strong></div>
+    </div>
+  </div>
+
+  <!-- SEARCH SECTION -->
+  <div class="search-section">
+    <div class="section-eyebrow">— Step 01 · Find a Hospital —</div>
+    <h2 class="section-title">Search any hospital <em>or CCN.</em></h2>
+
+    <div class="search-bar">
+      <div class="search-icon"></div>
+      <input type="text" class="search-input" id="searchInput" placeholder="Hospital name or CCN (e.g. Memorial, Cleveland, 100007)" autocomplete="off" spellcheck="false" />
+      <div class="search-clear" id="searchClear" style="display: none;">Clear</div>
+      <div class="search-suggestions" id="searchSuggestions"></div>
+    </div>
+
+    <div class="filter-chips" id="filterChips">
+      <div class="chip active" data-filter="state" data-value="">All States</div>
+      <div class="chip" data-filter="type" data-value="Acute Care">Acute Care</div>
+      <div class="chip" data-filter="type" data-value="Critical Access">Critical Access</div>
+      <div class="chip" data-filter="type" data-value="Children">Children's</div>
+      <div class="chip" data-filter="rating" data-value="penalized-high">High-Rated + HAC Penalty</div>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE (shown when no hospital selected) -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">★</div>
+    <div class="empty-state-text">Search for a hospital above to see ratings and HAC penalty status.</div>
+  </div>
+
+  <!-- HOSPITAL DETAIL (hidden until selected) -->
+  <div class="hospital-detail hidden" id="hospitalDetail">
+
+    <div class="hospital-name-block">
+      <div class="hospital-name-eyebrow">— Selected Hospital —</div>
+      <div class="hospital-name" id="hospitalName">—</div>
+      <div class="hospital-meta" id="hospitalMeta">—</div>
+    </div>
+
+    <!-- RATING CHANGE -->
+    <div class="rating-change-row" id="ratingChangeRow">
+      <div class="rating-card prior">
+        <div class="rating-card-label">2025 Rating</div>
+        <div class="rating-card-value" id="rating2025">—</div>
+        <div class="rating-card-stars" id="stars2025"></div>
+      </div>
+
+      <div class="rating-change-indicator pending" id="ratingChangeIndicator">
+        <div class="rating-change-arrow">↦</div>
+        <div class="rating-change-label">Year Over Year</div>
+        <div class="rating-change-value">May 13 release</div>
+      </div>
+
+      <div class="rating-card current">
+        <div class="rating-card-label">2026 Rating</div>
+        <div class="rating-card-value unavailable" id="rating2026">Pending<br>May 13</div>
+        <div class="rating-card-stars" id="stars2026"></div>
+      </div>
+    </div>
+
+    <!-- HAC SECTION -->
+    <div class="hac-section">
+      <div class="hac-header">
+        <div class="hac-header-title">HAC Reduction Program <em>status.</em></div>
+        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction.</div>
+      </div>
+
+      <div class="hac-row" id="hacRow">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="hac-insight" id="hacInsight" style="display: none;">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- AGGREGATE SECTION -->
+  <div class="aggregate-section">
+    <div class="section-eyebrow">— Step 02 · See the Pattern —</div>
+    <h2 class="section-title">The dual-penalty <em>signal.</em></h2>
+    <p class="section-subtitle">HAC penalty rates climb sharply as Star Ratings fall. The two travel together.</p>
+
+    <div class="aggregate-row">
+
+      <!-- Drops table - high-rated penalized hospitals -->
+      <div class="drops-table">
+        <div class="drops-table-header">
+          <div class="drops-table-title" id="dropsTableTitle">High-rated hospitals with HAC penalty</div>
+          <div class="drops-table-subtitle" id="dropsTableSubtitle">4- and 5-star hospitals that received the FY2026 HAC Reduction Program penalty. <strong>Click any row</strong> to see details.</div>
+        </div>
+
+        <table class="drops-tbl" id="dropsTable">
+          <thead>
+            <tr>
+              <th data-sort="name">Hospital</th>
+              <th data-sort="state" class="state">State</th>
+              <th data-sort="rating_2025" class="right sorted">Stars</th>
+              <th data-sort="hac_score" class="right">HAC Score</th>
+              <th data-sort="penalty" class="right">Penalty</th>
+            </tr>
+          </thead>
+          <tbody id="dropsTableBody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+        <div class="table-footer" id="dropsTableFooter">— Loading —</div>
+      </div>
+
+      <!-- Distribution chart -->
+      <div class="distribution-card">
+        <div class="drops-table-header">
+          <div class="drops-table-title">HAC penalty rate by Star Rating</div>
+          <div class="drops-table-subtitle">FY2026 HAC penalty rate among rated hospitals.</div>
+        </div>
+
+        <div class="distribution-bars" id="distributionBars">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="insight-callout" id="insightCallout">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOOK -->
+  <div class="hook">
+    <div class="hook-content">
+      <div class="hook-eyebrow">— Why this tool exists —</div>
+      <h2 class="hook-title">Many hospitals are getting hit twice <em>for the same problem.</em></h2>
+      <p class="hook-body">A meaningful share of PSI and HAC flags trace back to documentation accuracy, POA designation, and coding integrity — issues that drive both Star Ratings and HAC penalties, and are correctable before the calculation period closes. AlignIQ™ is the framework I built to catch them.</p>
+      <a href="https://www.linkedin.com/in/deanna-payne" class="hook-cta" target="_blank" rel="noopener">Learn about the AlignIQ Framework</a>
+      <div class="hook-byline">
+        <strong>Deanna Payne</strong> · MSN, RN, CCDS, CCDS-O<br>
+        Founder, Clinfin Solutions · Outpatient CDI Leader, Kettering Health
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">Clinfin <em>Solutions</em></div>
+    <div>DATA SOURCE: CMS PROVIDER DATA CATALOG · DATA.CMS.GOV</div>
+  </div>
+
+</div>
+
+<script>
+// ============ STATE ============
+let HOSPITALS = [];
+let METADATA = null;
+let selectedHospital = null;
+let activeFilters = {
+  state: '',
+  type: '',
+  special: '' // 'penalized-high'
+};
+let dropsSort = { col: 'rating_2025', asc: false };
+
+// ============ DATA LOADING ============
+async function loadData() {
+  try {
+    const [hospitalsRes, metaRes] = await Promise.all([
+      fetch('hospitals.json'),
+      fetch('metadata.json')
+    ]);
+    HOSPITALS = await hospitalsRes.json();
+    METADATA = await metaRes.json();
+    initializePage();
+  } catch (err) {
+    document.getElementById('loadingOverlay').innerHTML = 
+      '<div class="loading-text">Error loading data. Refresh to retry.</div>';
+    console.error(err);
+  }
+}
+
+// ============ INIT ============
+function initializePage() {
+  // Hide loading
+  document.getElementById('loadingOverlay').classList.add('hidden');
+
+  // Populate hero metadata
+  document.getElementById('ratedCount').textContent = 
+    METADATA.totals.rated_2025.toLocaleString() + ' hospitals';
+  document.getElementById('hacCount').textContent = 
+    METADATA.totals.hac_penalized.toLocaleString() + ' penalized';
+
+  // Set up search
+  setupSearch();
+
+  // Set up filter chips
+  setupFilters();
+
+  // Set up table sorting
+  setupTableSort();
+
+  // Render initial drops table
+  renderDropsTable();
+
+  // Render distribution chart
+  renderDistribution();
+
+  // Render insight callout
+  renderInsight();
+}
+
+// ============ SEARCH ============
+function setupSearch() {
+  const input = document.getElementById('searchInput');
+  const suggestions = document.getElementById('searchSuggestions');
+  const clearBtn = document.getElementById('searchClear');
+
+  input.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    clearBtn.style.display = q ? 'block' : 'none';
+    if (q.length < 2) {
+      suggestions.classList.remove('show');
+      return;
+    }
+    showSuggestions(q);
+  });
+
+  input.addEventListener('focus', () => {
+    if (input.value.trim().length >= 2) showSuggestions(input.value.trim().toLowerCase());
+  });
+
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    clearBtn.style.display = 'none';
+    suggestions.classList.remove('show');
+    input.focus();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-bar')) {
+      suggestions.classList.remove('show');
+    }
+  });
+}
+
+function showSuggestions(q) {
+  const suggestions = document.getElementById('searchSuggestions');
+  const matches = searchHospitals(q).slice(0, 12);
+  
+  if (matches.length === 0) {
+    suggestions.innerHTML = '<div class="suggestion-empty">No hospitals match that search.</div>';
+  } else {
+    suggestions.innerHTML = matches.map(h => `
+      <div class="suggestion-item" data-ccn="${h.ccn}">
+        <div class="name">${escapeHtml(h.name)}</div>
+        <div class="meta">${h.city}, ${h.state} · CCN ${h.ccn}${h.rating_2025 ? ' · ' + h.rating_2025 + ' STARS' : ''}</div>
+      </div>
+    `).join('');
+
+    suggestions.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const ccn = item.getAttribute('data-ccn');
+        selectHospital(ccn);
+        suggestions.classList.remove('show');
+      });
+    });
+  }
+  suggestions.classList.add('show');
+}
+
+function searchHospitals(q) {
+  q = q.toLowerCase();
+  
+  // CCN exact match
+  if (/^\d+$/.test(q)) {
+    return HOSPITALS.filter(h => h.ccn.includes(q));
+  }
+  
+  // Name search - prioritize starts-with, then contains
+  const startsWith = [];
+  const contains = [];
+  
+  HOSPITALS.forEach(h => {
+    if (!h.name) return;
+    const nameLower = h.name.toLowerCase();
+    if (nameLower.startsWith(q)) {
+      startsWith.push(h);
+    } else if (nameLower.includes(q)) {
+      contains.push(h);
+    }
+  });
+  
+  return [...startsWith, ...contains];
+}
+
+// ============ HOSPITAL SELECTION ============
+function selectHospital(ccn) {
+  const h = HOSPITALS.find(x => x.ccn === ccn);
+  if (!h) return;
+  selectedHospital = h;
+  renderHospitalDetail(h);
+  
+  // Scroll to detail
+  document.getElementById('hospitalDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderHospitalDetail(h) {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('hospitalDetail').classList.remove('hidden');
+
+  // Name and meta
+  document.getElementById('hospitalName').textContent = h.name;
+  const meta = [
+    h.hospital_type,
+    `${h.city}, ${h.state}`,
+    `CCN: ${h.ccn}`,
+    h.ownership
+  ].filter(Boolean).join(' · ');
+  document.getElementById('hospitalMeta').textContent = meta;
+
+  // 2025 Rating
+  const rating2025El = document.getElementById('rating2025');
+  const stars2025El = document.getElementById('stars2025');
+  if (h.rating_2025) {
+    rating2025El.classList.remove('unavailable');
+    rating2025El.innerHTML = `${h.rating_2025}<span class="rating-card-value-suffix">stars</span>`;
+    stars2025El.innerHTML = renderStars(h.rating_2025);
+  } else {
+    rating2025El.classList.add('unavailable');
+    rating2025El.innerHTML = 'Not Rated';
+    stars2025El.innerHTML = '';
+  }
+
+  // 2026 Rating - placeholder pre-launch
+  const rating2026El = document.getElementById('rating2026');
+  const stars2026El = document.getElementById('stars2026');
+  const indicator = document.getElementById('ratingChangeIndicator');
+  
+  if (h.rating_2026) {
+    // Post-May 13 — show real change
+    rating2026El.classList.remove('unavailable');
+    rating2026El.innerHTML = `${h.rating_2026}<span class="rating-card-value-suffix">stars</span>`;
+    stars2026El.innerHTML = renderStars(h.rating_2026);
+    
+    const delta = h.rating_2026 - h.rating_2025;
+    indicator.classList.remove('pending');
+    if (delta < 0) {
+      indicator.classList.remove('up', 'flat');
+      indicator.innerHTML = `
+        <div class="rating-change-arrow">↓</div>
+        <div class="rating-change-label">Year Over Year</div>
+        <div class="rating-change-value">${delta} Star${Math.abs(delta) > 1 ? 's' : ''}</div>
+      `;
+    } else if (delta > 0) {
+      indicator.classList.add('up');
+      indicator.innerHTML = `
+        <div class="rating-change-arrow">↑</div>
+        <div class="rating-change-label">Year Over Year</div>
+        <div class="rating-change-value">+${delta} Star${delta > 1 ? 's' : ''}</div>
+      `;
+    } else {
+      indicator.classList.add('flat');
+      indicator.innerHTML = `
+        <div class="rating-change-arrow">→</div>
+        <div class="rating-change-label">Year Over Year</div>
+        <div class="rating-change-value">No Change</div>
+      `;
+    }
+  } else {
+    // Pre-May 13 placeholder
+    rating2026El.classList.add('unavailable');
+    rating2026El.innerHTML = 'Pending<br>May 13';
+    stars2026El.innerHTML = '';
+    indicator.classList.remove('up', 'flat');
+    indicator.classList.add('pending');
+    indicator.innerHTML = `
+      <div class="rating-change-arrow">↦</div>
+      <div class="rating-change-label">Year Over Year</div>
+      <div class="rating-change-value">May 13 release</div>
+    `;
+  }
+
+  // HAC section
+  renderHACSection(h);
+}
+
+function renderStars(n) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    html += i <= n ? '★' : '<span class="empty">★</span>';
+  }
+  return html;
+}
+
+function renderHACSection(h) {
+  const row = document.getElementById('hacRow');
+  const insight = document.getElementById('hacInsight');
+
+  if (!h.hac.in_program) {
+    // Not in HAC program (e.g. Critical Access, Children's, Psychiatric)
+    row.innerHTML = `
+      <div class="hac-card no-data" style="grid-column: 1 / -1;">
+        <div class="hac-card-fy">— FY2026 —</div>
+        <div class="hac-card-status">Not Subject to HAC Reduction Program</div>
+        <div class="hac-card-detail">${h.hospital_type} hospitals are typically excluded from the HAC Reduction Program. The program applies to acute care hospitals subject to the Inpatient Prospective Payment System.</div>
+      </div>
+    `;
+    insight.style.display = 'none';
+    return;
+  }
+
+  const penalty = h.hac.penalty;
+  const score = h.hac.total_score;
+
+  if (penalty === 'Yes') {
+    row.innerHTML = `
+      <div class="hac-card penalized">
+        <div class="hac-card-fy">— FY2026 STATUS —</div>
+        <div class="hac-card-status">Penalized</div>
+        <div class="hac-card-detail">1% Medicare base operating DRG payment reduction applied through Sept 30, 2026.</div>
+      </div>
+      <div class="hac-card no-data">
+        <div class="hac-card-fy">— TOTAL HAC SCORE —</div>
+        <div class="hac-card-status">${score !== null ? score.toFixed(4) : '—'}</div>
+        <div class="hac-card-detail">Higher scores indicate worse performance. Hospitals in the worst-performing 25% (lowest quartile) of HAC scores receive the payment reduction.</div>
+      </div>
+    `;
+    insight.style.display = 'block';
+    
+    if (h.rating_2025 && h.rating_2025 >= 4) {
+      insight.textContent = `This hospital is rated ${h.rating_2025} stars overall — but received the FY2026 HAC penalty. The same underlying performance issues that triggered the HAC penalty may also influence the Safety of Care quartile placement that drives the new 2026 Star Rating cap.`;
+    } else if (h.rating_2025) {
+      insight.textContent = `${h.rating_2025}-star rating and HAC penalty applied. Safety of Care performance — driven heavily by PSI 90 and HAI measures — is what links these two penalties together.`;
+    } else {
+      insight.textContent = `HAC penalty applied. The Star Rating and HAC Reduction Program both measure aspects of hospital safety performance — and both are influenced by documentation, coding, and POA accuracy.`;
+    }
+  } else if (penalty === 'No') {
+    row.innerHTML = `
+      <div class="hac-card not-penalized">
+        <div class="hac-card-fy">— FY2026 STATUS —</div>
+        <div class="hac-card-status">Not Penalized</div>
+        <div class="hac-card-detail">No 1% Medicare payment reduction in FY2026. Hospital scored above the lowest-performing 25% threshold.</div>
+      </div>
+      <div class="hac-card no-data">
+        <div class="hac-card-fy">— TOTAL HAC SCORE —</div>
+        <div class="hac-card-status">${score !== null ? score.toFixed(4) : '—'}</div>
+        <div class="hac-card-detail">Higher scores indicate worse performance. This hospital scored above the lowest 25% threshold and avoided the penalty.</div>
+      </div>
+    `;
+    insight.style.display = 'none';
+  } else {
+    // N/A
+    row.innerHTML = `
+      <div class="hac-card no-data" style="grid-column: 1 / -1;">
+        <div class="hac-card-fy">— FY2026 STATUS —</div>
+        <div class="hac-card-status">Insufficient Data</div>
+        <div class="hac-card-detail">This hospital does not have sufficient measure data for HAC Reduction Program scoring in FY2026.</div>
+      </div>
+    `;
+    insight.style.display = 'none';
+  }
+}
+
+// ============ FILTERS ============
+function setupFilters() {
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const filter = chip.getAttribute('data-filter');
+      const value = chip.getAttribute('data-value');
+      
+      // Special handling for "penalized-high" — toggle it
+      if (filter === 'rating' && value === 'penalized-high') {
+        if (chip.classList.contains('active')) {
+          chip.classList.remove('active');
+          activeFilters.special = '';
+          // Reactivate "All States"
+          document.querySelector('.chip[data-filter="state"]').classList.add('active');
+        } else {
+          // Deactivate all chips
+          chips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeFilters = { state: '', type: '', special: 'penalized-high' };
+        }
+      } else {
+        // Standard chip behavior - exclusive within group
+        chips.forEach(c => {
+          if (c.getAttribute('data-filter') === filter) {
+            c.classList.remove('active');
+          }
+        });
+        chip.classList.add('active');
+        activeFilters[filter] = value;
+        // Clear special if a regular filter is selected
+        if (filter !== 'rating') activeFilters.special = '';
+      }
+      
+      renderDropsTable();
+    });
+  });
+}
+
+// ============ DROPS TABLE ============
+function setupTableSort() {
+  document.querySelectorAll('.drops-tbl th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.getAttribute('data-sort');
+      if (dropsSort.col === col) {
+        dropsSort.asc = !dropsSort.asc;
+      } else {
+        dropsSort.col = col;
+        dropsSort.asc = false;
+      }
+      renderDropsTable();
+    });
+  });
+}
+
+function renderDropsTable() {
+  const tbody = document.getElementById('dropsTableBody');
+  const footer = document.getElementById('dropsTableFooter');
+  const title = document.getElementById('dropsTableTitle');
+  const subtitle = document.getElementById('dropsTableSubtitle');
+
+  // Determine which hospitals to show
+  let pool = HOSPITALS.filter(h => h.rating_2025 && h.hac.in_program);
+
+  // Apply filters
+  if (activeFilters.special === 'penalized-high') {
+    pool = pool.filter(h => h.rating_2025 >= 4 && h.hac.penalty === 'Yes');
+    title.textContent = 'High-rated hospitals with HAC penalty';
+    subtitle.innerHTML = '4- and 5-star hospitals that received the FY2026 HAC Reduction Program penalty. <strong>Click any row</strong> to see details.';
+  } else {
+    // Default view: all penalized hospitals
+    pool = pool.filter(h => h.hac.penalty === 'Yes');
+    title.textContent = 'Hospitals with FY2026 HAC penalty';
+    subtitle.innerHTML = 'All hospitals that received the 1% Medicare payment reduction. <strong>Click any row</strong> to see details.';
+  }
+
+  if (activeFilters.type === 'Acute Care') {
+    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Acute Care'));
+  } else if (activeFilters.type === 'Critical Access') {
+    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Critical Access'));
+  } else if (activeFilters.type === 'Children') {
+    pool = pool.filter(h => h.hospital_type && h.hospital_type.includes('Childrens'));
+  }
+
+  // Sort
+  const sortKey = dropsSort.col;
+  const dir = dropsSort.asc ? 1 : -1;
+  pool.sort((a, b) => {
+    let av, bv;
+    if (sortKey === 'name') { av = a.name || ''; bv = b.name || ''; return dir * av.localeCompare(bv); }
+    if (sortKey === 'state') { av = a.state || ''; bv = b.state || ''; return dir * av.localeCompare(bv); }
+    if (sortKey === 'rating_2025') { av = a.rating_2025 || 0; bv = b.rating_2025 || 0; return dir * (av - bv); }
+    if (sortKey === 'hac_score') { av = a.hac.total_score ?? -999; bv = b.hac.total_score ?? -999; return dir * (av - bv); }
+    if (sortKey === 'penalty') { 
+      const penOrder = { 'Yes': 2, 'No': 1, 'N/A': 0, null: -1 };
+      av = penOrder[a.hac.penalty] ?? -1; 
+      bv = penOrder[b.hac.penalty] ?? -1; 
+      return dir * (av - bv); 
+    }
+    return 0;
+  });
+
+  // Update sort indicators
+  document.querySelectorAll('.drops-tbl th').forEach(th => {
+    th.classList.remove('sorted', 'asc');
+    if (th.getAttribute('data-sort') === sortKey) {
+      th.classList.add('sorted');
+      if (dropsSort.asc) th.classList.add('asc');
+    }
+  });
+
+  // Render top 25
+  const display = pool.slice(0, 25);
+  tbody.innerHTML = display.map(h => `
+    <tr data-ccn="${h.ccn}">
+      <td class="name">${escapeHtml(h.name)}</td>
+      <td class="state">${h.state}</td>
+      <td class="right">${h.rating_2025 || '—'}</td>
+      <td class="right">${h.hac.total_score !== null ? h.hac.total_score.toFixed(4) : '—'}</td>
+      <td class="right">${h.hac.penalty === 'Yes' ? '<span class="hac-pill yes">⚠ Yes</span>' : '<span class="hac-pill no">— No</span>'}</td>
+    </tr>
+  `).join('');
+
+  // Click rows to select
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      selectHospital(tr.getAttribute('data-ccn'));
+    });
+  });
+
+  // Footer
+  footer.textContent = `Showing ${display.length} of ${pool.length}`;
+}
+
+// ============ DISTRIBUTION CHART ============
+function renderDistribution() {
+  const bars = document.getElementById('distributionBars');
+  const ct = METADATA.cross_tab;
+  
+  // Find max penalty rate for scaling
+  const maxRate = Math.max(...Object.values(ct).map(c => c.penalty_rate));
+  
+  let html = '';
+  for (let r = 1; r <= 5; r++) {
+    const c = ct[r];
+    const widthPct = (c.penalty_rate / maxRate) * 100;
+    html += `
+      <div class="dist-bar-row">
+        <div class="dist-bar-label">
+          <div>${r} STAR · <span class="count">${c.penalized}/${c.in_hac_program} hospitals</span></div>
+          <div>${c.penalty_rate}%</div>
+        </div>
+        <div class="dist-bar-track">
+          <div class="dist-bar-fill tier-${r}" style="width: ${widthPct}%;"></div>
+        </div>
+      </div>
+    `;
+  }
+  bars.innerHTML = html;
+}
+
+// ============ INSIGHT CALLOUT ============
+function renderInsight() {
+  const callout = document.getElementById('insightCallout');
+  const m = METADATA;
+  const fiveStarRate = m.cross_tab[5].penalty_rate;
+  const oneStarRate = m.cross_tab[1].penalty_rate;
+  
+  callout.innerHTML = `
+    <strong>${m.high_rated_penalized_count} hospitals rated 4 or 5 stars overall</strong> received the FY2026 HAC Reduction Program penalty. 
+    The penalty rate climbs from <strong>${fiveStarRate}%</strong> at 5 stars to <strong>${oneStarRate}%</strong> at 1 star — 
+    the two penalties measure overlapping performance and travel together.
+  `;
+}
+
+// ============ UTILITIES ============
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ============ KICK OFF ============
+loadData();
+</script>
+
+</body>
+</html>

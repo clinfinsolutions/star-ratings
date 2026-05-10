@@ -1,0 +1,55 @@
+{
+  "totals": {
+    "all_hospitals": 5426,
+    "rated_2025": 2866,
+    "in_hac_program": 3055,
+    "hac_penalized": 719,
+    "rated_and_in_hac": 2530
+  },
+  "rating_distribution_2025": {
+    "1": 229,
+    "2": 649,
+    "3": 935,
+    "4": 765,
+    "5": 288
+  },
+  "cross_tab": {
+    "1": {
+      "total_rated": 229,
+      "in_hac_program": 209,
+      "penalized": 112,
+      "penalty_rate": 53.6
+    },
+    "2": {
+      "total_rated": 649,
+      "in_hac_program": 604,
+      "penalized": 195,
+      "penalty_rate": 32.3
+    },
+    "3": {
+      "total_rated": 935,
+      "in_hac_program": 828,
+      "penalized": 185,
+      "penalty_rate": 22.3
+    },
+    "4": {
+      "total_rated": 765,
+      "in_hac_program": 673,
+      "penalized": 99,
+      "penalty_rate": 14.7
+    },
+    "5": {
+      "total_rated": 288,
+      "in_hac_program": 216,
+      "penalized": 21,
+      "penalty_rate": 9.7
+    }
+  },
+  "high_rated_penalized_count": 120,
+  "high_rated_penalized_5star": 21,
+  "high_rated_penalized_4star": 99,
+  "data_sources": {
+    "star_ratings": "CMS Care Compare · 2025 Release",
+    "hac_program": "CMS HAC Reduction Program · FY2026"
+  }
+}
