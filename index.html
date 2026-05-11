@@ -571,6 +571,125 @@
     line-height: 1.5;
   }
 
+  /* MEASURE BREAKDOWN */
+  .measure-breakdown {
+    background: var(--paper-deep);
+    margin-top: 14px;
+    padding: 22px 26px;
+    border-left: 3px solid var(--accent-up);
+  }
+  .measure-breakdown-header {
+    margin-bottom: 18px;
+  }
+  .measure-breakdown-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .measure-breakdown-title em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .measure-breakdown-sub {
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    color: var(--body);
+    line-height: 1.5;
+    max-width: 760px;
+  }
+  .measure-rows {
+    margin-top: 18px;
+  }
+  .measure-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 70px;
+    gap: 16px;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+  .measure-row:last-child { border-bottom: none; }
+  .measure-label-main {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.08em;
+  }
+  .measure-label-sub {
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .measure-bar-track {
+    position: relative;
+    height: 18px;
+    background: transparent;
+  }
+  .measure-bar-zero {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--ink);
+    z-index: 2;
+  }
+  .measure-bar-fill {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    z-index: 1;
+  }
+  .measure-bar-fill.worse {
+    background: var(--ink);
+  }
+  .measure-bar-fill.better {
+    background: var(--accent-up);
+    opacity: 0.5;
+  }
+  .measure-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+  }
+  .measure-value.worse { color: var(--ink); }
+  .measure-value.better { color: var(--accent-up); }
+  .measure-value.muted { color: var(--muted); font-weight: 400; }
+  .measure-scale-labels {
+    display: grid;
+    grid-template-columns: 1fr 2fr 70px;
+    gap: 16px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .measure-scale-labels .scale-spacer { }
+  .measure-scale-labels .scale-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .measure-scale-labels .scale-line .scale-center {
+    text-align: center;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 900px) {
+    .measure-row { grid-template-columns: 1fr 1.5fr 50px; gap: 10px; }
+    .measure-scale-labels { font-size: 8px; }
+  }
+
   /* Empty state when no hospital selected */
   .empty-state {
     padding: 80px 56px;
@@ -1013,7 +1132,7 @@
     <div class="hero-meta">
       <div class="hero-meta-item">STAR RATINGS: <strong>2025 Release</strong></div>
       <div class="hero-meta-item">HAC PROGRAM: <strong>FY2025 + FY2026</strong></div>
-      <div class="hero-meta-item">RATED: <strong id="ratedCount">— hospitals</strong></div>
+      <div class="hero-meta-item">COVERAGE: <strong id="coverageCount">— hospitals · — rated</strong></div>
       <div class="hero-meta-item">PENALIZED FY26: <strong id="hacCount">—</strong></div>
     </div>
   </div>
@@ -1081,6 +1200,10 @@
       </div>
 
       <div class="hac-row" id="hacRow">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="measure-breakdown" id="hacBreakdown" style="display: none;">
         <!-- Filled by JS -->
       </div>
 
@@ -1179,8 +1302,9 @@ function initializePage() {
   document.getElementById('loadingOverlay').classList.add('hidden');
 
   // Populate hero metadata
-  document.getElementById('ratedCount').textContent = 
-    METADATA.totals.rated_2025.toLocaleString() + ' hospitals';
+  document.getElementById('coverageCount').textContent = 
+    METADATA.totals.all_hospitals.toLocaleString() + ' hospitals · ' + 
+    METADATA.totals.rated_2025.toLocaleString() + ' rated';
   document.getElementById('hacCount').textContent = 
     METADATA.totals.hac_penalized_fy_2026.toLocaleString() + ' hospitals';
 
@@ -1401,6 +1525,20 @@ function renderHACSection(h) {
 
   row.innerHTML = card2025 + card2026;
 
+  // Render measure breakdown for FY2026 (if data available)
+  const breakdown = document.getElementById('hacBreakdown');
+  const fy26 = h.hac.fy_2026;
+  const hasBreakdownData = fy26.psi90_z !== null || fy26.clabsi_z !== null || 
+                            fy26.cauti_z !== null || fy26.ssi_z !== null || 
+                            fy26.cdi_z !== null || fy26.mrsa_z !== null;
+  
+  if (hasBreakdownData) {
+    breakdown.style.display = 'block';
+    breakdown.innerHTML = renderMeasureBreakdown(fy26);
+  } else {
+    breakdown.style.display = 'none';
+  }
+
   // Insight callout based on movement
   insight.style.display = 'block';
   let insightText = '';
@@ -1424,6 +1562,92 @@ function renderHACSection(h) {
   }
 
   insight.innerHTML = insightText;
+}
+
+function renderMeasureBreakdown(fy26) {
+  // Build measure rows showing z-scores with visual bars
+  const measures = [
+    { key: 'psi90_z', label: 'PSI 90', sublabel: 'Patient Safety Indicator Composite' },
+    { key: 'clabsi_z', label: 'CLABSI', sublabel: 'Central Line-Associated Bloodstream Infection' },
+    { key: 'cauti_z', label: 'CAUTI', sublabel: 'Catheter-Associated Urinary Tract Infection' },
+    { key: 'ssi_z', label: 'SSI', sublabel: 'Surgical Site Infection' },
+    { key: 'cdi_z', label: 'CDI', sublabel: 'C. difficile Infection' },
+    { key: 'mrsa_z', label: 'MRSA', sublabel: 'Methicillin-Resistant S. aureus' },
+  ];
+
+  // Determine max abs value for bar scaling (cap at 3.0 for sane visuals)
+  let maxAbs = 1.0;
+  measures.forEach(m => {
+    const v = fy26[m.key];
+    if (v !== null && v !== undefined && Math.abs(v) > maxAbs) {
+      maxAbs = Math.min(Math.abs(v), 3.0);
+    }
+  });
+  maxAbs = Math.max(maxAbs, 1.5); // minimum scale
+
+  let rowsHtml = '';
+  measures.forEach(m => {
+    const v = fy26[m.key];
+    if (v === null || v === undefined) {
+      rowsHtml += `
+        <div class="measure-row">
+          <div class="measure-label">
+            <div class="measure-label-main">${m.label}</div>
+            <div class="measure-label-sub">${m.sublabel}</div>
+          </div>
+          <div class="measure-bar-track">
+            <div class="measure-bar-zero"></div>
+          </div>
+          <div class="measure-value muted">—</div>
+        </div>
+      `;
+      return;
+    }
+
+    // Calculate bar position (center at 50%, extends left for negative, right for positive)
+    const absVal = Math.min(Math.abs(v), 3.0);
+    const widthPct = (absVal / maxAbs) * 50; // max 50% from center
+    const isWorse = v > 0;
+    const barStyle = isWorse 
+      ? `left: 50%; width: ${widthPct}%;`
+      : `right: 50%; width: ${widthPct}%;`;
+    const barClass = isWorse ? 'worse' : 'better';
+
+    rowsHtml += `
+      <div class="measure-row">
+        <div class="measure-label">
+          <div class="measure-label-main">${m.label}</div>
+          <div class="measure-label-sub">${m.sublabel}</div>
+        </div>
+        <div class="measure-bar-track">
+          <div class="measure-bar-zero"></div>
+          <div class="measure-bar-fill ${barClass}" style="${barStyle}"></div>
+        </div>
+        <div class="measure-value ${isWorse ? 'worse' : 'better'}">${v > 0 ? '+' : ''}${v.toFixed(2)}</div>
+      </div>
+    `;
+  });
+
+  return `
+    <div class="measure-breakdown-inner">
+      <div class="measure-breakdown-header">
+        <div class="measure-breakdown-title">FY2026 measure breakdown <em>— z-scores by component.</em></div>
+        <div class="measure-breakdown-sub">The Total HAC Score is a weighted average of these six measures. Higher (more positive) z-scores indicate worse performance relative to the national distribution. The center line represents the national average.</div>
+      </div>
+      <div class="measure-rows">
+        ${rowsHtml}
+      </div>
+      <div class="measure-scale-labels">
+        <div class="scale-spacer"></div>
+        <div class="scale-line">
+          <span>← Better than national avg</span>
+          <span class="scale-center">National average</span>
+          <span>Worse than national avg →</span>
+        </div>
+        <div class="scale-spacer"></div>
+      </div>
+    </div>
+  `;
 }
 
 function renderHACCard(fy, penalty, score) {
