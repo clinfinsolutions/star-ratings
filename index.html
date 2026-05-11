@@ -734,6 +734,16 @@
     font-weight: 700;
     color: var(--ink-soft);
   }
+  .measure-scale-note {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+  }
 
   @media (max-width: 900px) {
     .measure-row { grid-template-columns: 1fr 1.5fr 50px; gap: 10px; }
@@ -1178,7 +1188,7 @@
   <div class="hero">
     <div class="hero-eyebrow">— A FREE TOOL FROM CLINFIN SOLUTIONS —</div>
     <h1 class="hero-title">2026 Hospital Star Ratings <em>Explorer</em></h1>
-    <p class="hero-deck">The Star Rating tells one story. The HAC penalty tells another. Search any hospital to see what both say about them — side by side.</p>
+    <p class="hero-deck">The Star Rating tells one story. The HAC penalty tells another. Search any hospital. See where they agree — and where they don't.</p>
     <div class="hero-meta">
       <div class="hero-meta-item">STAR RATINGS: <strong>2025 Release</strong></div>
       <div class="hero-meta-item">HAC PROGRAM: <strong>FY2025 + FY2026</strong></div>
@@ -1739,7 +1749,7 @@ function renderMeasureBreakdown(fy26, hk) {
     <div class="measure-breakdown-inner">
       <div class="measure-breakdown-header">
         <div class="measure-breakdown-title">FY2026 Safety of Care measure breakdown <em>— components.</em></div>
-        <div class="measure-breakdown-sub">The Safety of Care quartile (which drives the new 2026 Star Rating cap) is built from PSI 90, five hospital-acquired infections, and Hip/Knee complications. Bars extend from a center line representing the national average. PSI 90 + HAIs use z-scores (0 = national average); Hip/Knee uses risk-standardized complication rate (national average ~2.4%).</div>
+        <div class="measure-breakdown-sub">The Safety of Care quartile (which drives the new 2026 Star Rating cap) is built from PSI 90, five hospital-acquired infections, and Hip/Knee complications.</div>
       </div>
       <div class="measure-rows">
         ${rowsHtml}
@@ -1753,6 +1763,9 @@ function renderMeasureBreakdown(fy26, hk) {
           <span>Worse than national avg →</span>
         </div>
         <div class="scale-spacer"></div>
+      </div>
+      <div class="measure-scale-note">
+        Bars extend from a center line representing the national average. PSI 90 + HAIs use z-scores (0 = national average); Hip/Knee uses risk-standardized complication rate (national average ~2.4%).
       </div>
     </div>
   `;
