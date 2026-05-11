@@ -514,6 +514,8 @@
     background: var(--paper-deep);
     padding: 22px 24px 20px 24px;
     border-top: 3px solid var(--accent-flat);
+    display: flex;
+    flex-direction: column;
   }
   .hac-card.penalized { border-top-color: var(--ink); }
   .hac-card.not-penalized { border-top-color: var(--accent-up); }
@@ -549,7 +551,7 @@
     line-height: 1.5;
   }
   .hac-card-score {
-    margin-top: 10px;
+    margin-top: auto;
     padding-top: 10px;
     border-top: 1px solid var(--rule);
     font-family: 'JetBrains Mono', monospace;
@@ -561,6 +563,9 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+  }
+  .hac-card-score-spacer {
+    margin-top: 10px;
   }
   .hac-card-score strong {
     color: var(--ink);
