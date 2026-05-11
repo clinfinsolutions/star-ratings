@@ -662,6 +662,49 @@
   .measure-value.worse { color: var(--ink); }
   .measure-value.better { color: var(--accent-up); }
   .measure-value.muted { color: var(--muted); font-weight: 400; }
+  
+  /* Hip/Knee categorical row */
+  .hk-row {
+    border-top: 1px solid var(--rule);
+    padding-top: 12px !important;
+    margin-top: 6px;
+  }
+  .hk-track {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    height: 22px !important;
+  }
+  .hk-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 4px 12px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .hk-badge.hk-better {
+    background: rgba(107, 124, 146, 0.2);
+    color: var(--accent-up);
+    border: 1px solid var(--accent-up);
+  }
+  .hk-badge.hk-worse {
+    background: var(--ink);
+    color: var(--white);
+  }
+  .hk-badge.hk-neutral {
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    border: 1px solid var(--rule);
+  }
+  .hk-badge.hk-muted {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--light);
+    font-style: italic;
+  }
   .measure-scale-labels {
     display: grid;
     grid-template-columns: 1fr 2fr 70px;
@@ -1241,15 +1284,15 @@
         <div class="methodology-block">
           <div class="methodology-block-title">CMS HAC Reduction Program</div>
           <div class="methodology-block-body">
-            Sourced from CMS HAC Reduction Program Hospital files. The Total HAC Score is calculated from PSI 90 (Patient Safety Indicator composite) and five hospital-acquired infection measures (CLABSI, CAUTI, SSI, CDI, MRSA). Hospitals in the worst-performing quartile receive a 1% Medicare payment reduction.
+            Sourced from CMS HAC Reduction Program Hospital files (PSI 90 + 5 HAIs) and the CMS Complications and Deaths file (Total Hip/Knee Arthroplasty Complication Rate). The Total HAC Score itself is calculated from PSI 90 and the five hospital-acquired infections; Hip/Knee is a separate measure used in the Safety of Care quartile calculation but not in HAC.
             <br><br>
-            <strong>FY2025</strong> measurement windows: PSI 90 covers Jul 2021–Jun 2023; HAI measures cover Jan 2022–Dec 2023. <strong>FY2026</strong> measurement windows: PSI 90 covers Jul 2022–Jun 2024; HAI measures cover Jan 2023–Dec 2024.
+            <strong>FY2025 HAC</strong> measurement windows: PSI 90 covers Jul 2021–Jun 2023; HAI measures cover Jan 2022–Dec 2023. <strong>FY2026 HAC</strong> measurement windows: PSI 90 covers Jul 2022–Jun 2024; HAI measures cover Jan 2023–Dec 2024. <strong>Hip/Knee</strong> measurement window: Apr 2021–Mar 2024 (single 3-year rolling window).
           </div>
         </div>
         <div class="methodology-block">
           <div class="methodology-block-title">A note on correlation</div>
           <div class="methodology-block-body">
-            Star Rating's Safety of Care measure group and the HAC Reduction Program use overlapping but not identical measure sets and statistical methods. The two penalties are <strong>highly correlated but not equivalent</strong>: HAC penalty status is a strong predictor of Safety of Care quartile placement, but exceptions exist. Both are influenced by the underlying documentation, coding, and POA designation accuracy of the same set of cases.
+            Star Rating's Safety of Care measure group and the HAC Reduction Program use overlapping but not identical measure sets and statistical methods. The two are <strong>highly correlated but not equivalent</strong>: HAC penalty status is a strong predictor of Safety of Care quartile placement, but exceptions exist. Both PSI 90 + 5 HAIs (the HAC components) and Total Hip/Knee Arthroplasty Complication Rate contribute to the Safety of Care quartile that drives the new 2026 Star Rating 4-star cap.
           </div>
         </div>
       </div>
@@ -1528,13 +1571,16 @@ function renderHACSection(h) {
   // Render measure breakdown for FY2026 (if data available)
   const breakdown = document.getElementById('hacBreakdown');
   const fy26 = h.hac.fy_2026;
-  const hasBreakdownData = fy26.psi90_z !== null || fy26.clabsi_z !== null || 
+  const hk = h.hip_knee;
+  const hasHACBreakdown = fy26.psi90_z !== null || fy26.clabsi_z !== null || 
                             fy26.cauti_z !== null || fy26.ssi_z !== null || 
                             fy26.cdi_z !== null || fy26.mrsa_z !== null;
+  const hasHKData = hk && hk.compared_to_national;
+  const hasBreakdownData = hasHACBreakdown || hasHKData;
   
   if (hasBreakdownData) {
     breakdown.style.display = 'block';
-    breakdown.innerHTML = renderMeasureBreakdown(fy26);
+    breakdown.innerHTML = renderMeasureBreakdown(fy26, hk);
   } else {
     breakdown.style.display = 'none';
   }
@@ -1564,7 +1610,7 @@ function renderHACSection(h) {
   insight.innerHTML = insightText;
 }
 
-function renderMeasureBreakdown(fy26) {
+function renderMeasureBreakdown(fy26, hk) {
   // Build measure rows showing z-scores with visual bars
   const measures = [
     { key: 'psi90_z', label: 'PSI 90', sublabel: 'Patient Safety Indicator Composite' },
@@ -1628,14 +1674,66 @@ function renderMeasureBreakdown(fy26) {
     `;
   });
 
+  // Hip/Knee row (categorical, not a z-score bar)
+  let hkRowHtml = '';
+  if (hk && hk.compared_to_national) {
+    const comparison = hk.compared_to_national;
+    let badgeClass = 'hk-neutral';
+    let badgeText = comparison;
+    
+    if (comparison === 'Better Than the National Rate') {
+      badgeClass = 'hk-better';
+      badgeText = 'Better than national rate';
+    } else if (comparison === 'Worse Than the National Rate') {
+      badgeClass = 'hk-worse';
+      badgeText = 'Worse than national rate';
+    } else if (comparison === 'No Different Than the National Rate') {
+      badgeClass = 'hk-neutral';
+      badgeText = 'No different than national rate';
+    } else if (comparison === 'Number of Cases Too Small') {
+      badgeClass = 'hk-muted';
+      badgeText = 'Number of cases too small';
+    } else if (comparison === 'Not Available') {
+      badgeClass = 'hk-muted';
+      badgeText = 'Not available';
+    }
+
+    // Score display (if available)
+    const hasScore = hk.score !== null && hk.score !== undefined;
+    let scoreDisplay = '';
+    if (hasScore) {
+      // Determine color/class based on comparison
+      let valueClass = 'muted';
+      if (comparison === 'Worse Than the National Rate') valueClass = 'worse';
+      else if (comparison === 'Better Than the National Rate') valueClass = 'better';
+      scoreDisplay = `<div class="measure-value ${valueClass}">${hk.score.toFixed(1)}%</div>`;
+    } else {
+      scoreDisplay = `<div class="measure-value muted">—</div>`;
+    }
+
+    hkRowHtml = `
+      <div class="measure-row hk-row">
+        <div class="measure-label">
+          <div class="measure-label-main">HIP/KNEE</div>
+          <div class="measure-label-sub">Total Hip / Knee Arthroplasty Complication Rate · National avg ~2.4%</div>
+        </div>
+        <div class="measure-bar-track hk-track">
+          <div class="hk-badge ${badgeClass}">${badgeText}</div>
+        </div>
+        ${scoreDisplay}
+      </div>
+    `;
+  }
+
   return `
     <div class="measure-breakdown-inner">
       <div class="measure-breakdown-header">
-        <div class="measure-breakdown-title">FY2026 measure breakdown <em>— z-scores by component.</em></div>
-        <div class="measure-breakdown-sub">The Total HAC Score is a weighted average of these six measures. Higher (more positive) z-scores indicate worse performance relative to the national distribution. The center line represents the national average.</div>
+        <div class="measure-breakdown-title">FY2026 Safety of Care measure breakdown <em>— components.</em></div>
+        <div class="measure-breakdown-sub">The Safety of Care quartile (which drives the new 2026 Star Rating cap) is built from PSI 90, five hospital-acquired infections, and Hip/Knee complications. Higher (more positive) z-scores indicate worse performance relative to the national distribution. The center line represents the national average.</div>
       </div>
       <div class="measure-rows">
         ${rowsHtml}
+        ${hkRowHtml}
       </div>
       <div class="measure-scale-labels">
         <div class="scale-spacer"></div>
