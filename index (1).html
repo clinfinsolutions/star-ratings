@@ -492,6 +492,18 @@
     line-height: 1.5;
     max-width: 760px;
   }
+  .hac-header-dates {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    line-height: 1.6;
+  }
+  .hac-header-dates .fy-label {
+    color: var(--ink);
+    font-weight: 700;
+  }
   .hac-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1064,7 +1076,8 @@
     <div class="hac-section">
       <div class="hac-header">
         <div class="hac-header-title">HAC Reduction Program <em>year over year.</em></div>
-        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction. The threshold is recalculated each fiscal year using a 24-month measurement window: <strong>FY2025 covers Jul 2021–Dec 2023</strong>, and <strong>FY2026 covers Jul 2022–Dec 2024</strong>.</div>
+        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction. The threshold is recalculated each fiscal year using a 24-month measurement window.</div>
+        <div class="hac-header-dates"><span class="fy-label">FY2025</span> covers Jul 2021 – Dec 2023 · <span class="fy-label">FY2026</span> covers Jul 2022 – Dec 2024</div>
       </div>
 
       <div class="hac-row" id="hacRow">
@@ -1077,62 +1090,12 @@
     </div>
   </div>
 
-  <!-- AGGREGATE SECTION -->
-  <div class="aggregate-section">
-    <div class="section-eyebrow">— Step 02 · See the Pattern —</div>
-    <h2 class="section-title">The dual-penalty <em>signal.</em></h2>
-    <p class="section-subtitle">FY2026 HAC penalty rates by state and by Star Rating. The two penalties travel together.</p>
-
-    <div class="aggregate-row">
-
-      <!-- State aggregates -->
-      <div class="drops-table">
-        <div class="drops-table-header">
-          <div class="drops-table-title" id="dropsTableTitle">FY2026 HAC penalty rate by state</div>
-          <div class="drops-table-subtitle" id="dropsTableSubtitle">States with at least 5 hospitals in the HAC Reduction Program. Sorted by penalty rate.</div>
-        </div>
-
-        <table class="drops-tbl" id="stateTable">
-          <thead>
-            <tr>
-              <th data-sort="rate" class="sorted">State</th>
-              <th data-sort="total" class="right">In HAC</th>
-              <th data-sort="penalized" class="right">Penalized</th>
-              <th data-sort="persistent" class="right">Persistent</th>
-              <th data-sort="rate" class="right">Rate</th>
-            </tr>
-          </thead>
-          <tbody id="stateTableBody">
-            <!-- Filled by JS -->
-          </tbody>
-        </table>
-        <div class="table-footer" id="stateTableFooter">— Loading —</div>
-      </div>
-
-      <!-- Distribution chart -->
-      <div class="distribution-card">
-        <div class="drops-table-header">
-          <div class="drops-table-title">HAC penalty rate by Star Rating</div>
-          <div class="drops-table-subtitle">FY2026 HAC penalty rate among rated hospitals.</div>
-        </div>
-
-        <div class="distribution-bars" id="distributionBars">
-          <!-- Filled by JS -->
-        </div>
-
-        <div class="insight-callout" id="insightCallout">
-          <!-- Filled by JS -->
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- HOOK -->
   <div class="hook">
     <div class="hook-content">
       <div class="hook-eyebrow">— Why this tool exists —</div>
-      <h2 class="hook-title">Many hospitals are getting hit twice <em>for the same problem.</em></h2>
-      <p class="hook-body">A meaningful share of PSI and HAC flags trace back to documentation accuracy, POA designation, and coding integrity — issues that drive both Star Ratings and HAC penalties, and are correctable before the calculation period closes. AlignIQ™ is the framework I built to catch them.</p>
+      <h2 class="hook-title">When Star Ratings and HAC penalties <em>disagree,</em> it's usually a data integrity story — not a quality story.</h2>
+      <p class="hook-body">A meaningful share of PSI and HAC flags trace back to documentation accuracy, POA designation, and coding integrity — issues that drive both Star Ratings and HAC penalties, and are often correctable before the calculation period closes. AlignIQ™ is the framework I built to catch them.</p>
       <a href="https://www.linkedin.com/posts/deanna-payne_aligniq-a-framework-for-reducing-false-activity-7457776425887100928-hpOl" class="hook-cta" target="_blank" rel="noopener">Learn about the AlignIQ Framework</a>
       <div class="hook-byline">
         <strong>Deanna Payne</strong> · MSN, RN, CCDS, CCDS-O<br>
@@ -1223,21 +1186,6 @@ function initializePage() {
 
   // Set up search
   setupSearch();
-
-  // Set up filter chips
-  setupFilters();
-
-  // Set up table sorting
-  setupTableSort();
-
-  // Render initial drops table
-  renderDropsTable();
-
-  // Render distribution chart
-  renderDistribution();
-
-  // Render insight callout
-  renderInsight();
 }
 
 // ============ SEARCH ============
