@@ -1268,8 +1268,7 @@
     <div class="hac-section">
       <div class="hac-header">
         <div class="hac-header-title">HAC Reduction Program <em>year over year.</em></div>
-        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction. The threshold is recalculated each fiscal year using a 24-month measurement window.</div>
-        <div class="hac-header-dates"><span class="fy-label">FY2025</span> covers Jul 2021 – Dec 2023 · <span class="fy-label">FY2026</span> covers Jul 2022 – Dec 2024</div>
+        <div class="hac-header-subtitle">Hospitals in the worst-performing quartile of HAC measures (PSI 90 + 5 hospital-acquired infections) receive a 1% Medicare payment reduction. The threshold is recalculated each fiscal year using a 24-month performance measurement window.</div>
       </div>
 
       <div class="hac-row" id="hacRow">
@@ -1590,12 +1589,13 @@ function renderHACSection(h) {
   const s25 = h.hac.fy_2025.total_score;
   const s26 = h.hac.fy_2026.total_score;
   const movement = h.hac.movement;
-  const estPenalty = h.medicare && h.medicare.estimated_1pct_penalty;
+  const est25 = h.medicare && h.medicare.estimated_fy_2025_penalty;
+  const est26 = h.medicare && h.medicare.estimated_fy_2026_penalty;
 
-  // Render FY2025 card
-  const card2025 = renderHACCard('FY2025', p25, s25, estPenalty);
-  // Render FY2026 card
-  const card2026 = renderHACCard('FY2026', p26, s26, estPenalty);
+  // Render FY2025 card (with CY2023 proxy estimate)
+  const card2025 = renderHACCard('FY2025', p25, s25, est25);
+  // Render FY2026 card (with CY2024 proxy estimate)
+  const card2026 = renderHACCard('FY2026', p26, s26, est26);
 
   row.innerHTML = card2025 + card2026;
 
@@ -1790,11 +1790,22 @@ function renderHACCard(fy, penalty, score, estPenalty) {
   let statusText = 'Insufficient Data';
   let detailText = `This hospital does not have sufficient measure data for HAC scoring in ${fy}.`;
 
+  // Measurement windows per fiscal year
+  const windows = {
+    'FY2025': 'Jul 2021 – Dec 2023',
+    'FY2026': 'Jul 2022 – Dec 2024',
+  };
+  const penaltyPeriods = {
+    'FY2025': 'FY2025 (Oct 2024 – Sep 2025)',
+    'FY2026': 'FY2026 (Oct 2025 – Sep 2026)',
+  };
+
   if (penalty === 'Yes') {
     cls = 'penalized';
     statusText = 'Penalized';
-    const yearNum = parseInt(fy.replace('FY', ''));
-    detailText = `1% Medicare payment reduction applied for ${fy} (Oct ${yearNum - 1} – Sep ${yearNum}). The reduction is applied to base operating DRG payments.`;
+    const window = windows[fy] || '';
+    const period = penaltyPeriods[fy] || fy;
+    detailText = `Performance during ${window} placed this hospital in the bottom HAC quartile. A 1% reduction is applied to all Medicare base operating DRG payments during ${period}.`;
   } else if (penalty === 'No') {
     cls = 'not-penalized';
     statusText = 'Not Penalized';
@@ -1805,19 +1816,20 @@ function renderHACCard(fy, penalty, score, estPenalty) {
     detailText = `This hospital was not in the ${fy} HAC Reduction Program file.`;
   }
 
-  // Score line + estimated penalty (only show penalty estimate when actually penalized)
+  // Score line + estimated penalty (only show penalty estimate when actually penalized AND for FY2026)
   let scoreLine = '';
   if (score !== null && score !== undefined) {
     let penaltyDisplay = '';
+    // Show dollar estimate on both FY cards (each uses its own year-aligned proxy)
     if (penalty === 'Yes' && estPenalty && estPenalty > 0) {
       // Format penalty: $3.4M for ≥1M, $850K for <1M
       let penaltyStr;
       if (estPenalty >= 1_000_000) {
-        penaltyStr = `$${(estPenalty / 1_000_000).toFixed(1)}M`;
+        penaltyStr = `~$${(estPenalty / 1_000_000).toFixed(1)}M`;
       } else if (estPenalty >= 1_000) {
-        penaltyStr = `$${Math.round(estPenalty / 1_000)}K`;
+        penaltyStr = `~$${Math.round(estPenalty / 1_000)}K`;
       } else {
-        penaltyStr = `$${Math.round(estPenalty).toLocaleString()}`;
+        penaltyStr = `~$${Math.round(estPenalty).toLocaleString()}`;
       }
       penaltyDisplay = `<span class="hac-card-penalty">Est. Financial Penalty: <strong>${penaltyStr}</strong></span>`;
     }
