@@ -556,10 +556,23 @@
     font-size: 11px;
     color: var(--muted);
     letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
   .hac-card-score strong {
     color: var(--ink);
     font-weight: 700;
+  }
+  .hac-card-penalty {
+    color: var(--muted);
+  }
+  .hac-card-penalty strong {
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 13px;
   }
   .hac-insight {
     background: var(--ink);
@@ -1577,11 +1590,12 @@ function renderHACSection(h) {
   const s25 = h.hac.fy_2025.total_score;
   const s26 = h.hac.fy_2026.total_score;
   const movement = h.hac.movement;
+  const estPenalty = h.medicare && h.medicare.estimated_1pct_penalty;
 
   // Render FY2025 card
-  const card2025 = renderHACCard('FY2025', p25, s25);
+  const card2025 = renderHACCard('FY2025', p25, s25, estPenalty);
   // Render FY2026 card
-  const card2026 = renderHACCard('FY2026', p26, s26);
+  const card2026 = renderHACCard('FY2026', p26, s26, estPenalty);
 
   row.innerHTML = card2025 + card2026;
 
@@ -1771,7 +1785,7 @@ function renderMeasureBreakdown(fy26, hk) {
   `;
 }
 
-function renderHACCard(fy, penalty, score) {
+function renderHACCard(fy, penalty, score, estPenalty) {
   let cls = 'no-data';
   let statusText = 'Insufficient Data';
   let detailText = `This hospital does not have sufficient measure data for HAC scoring in ${fy}.`;
@@ -1780,7 +1794,7 @@ function renderHACCard(fy, penalty, score) {
     cls = 'penalized';
     statusText = 'Penalized';
     const yearNum = parseInt(fy.replace('FY', ''));
-    detailText = `1% Medicare payment reduction applied for ${fy} (Oct ${yearNum - 1} – Sep ${yearNum}). The reduction is applied to base operating DRG payments — typically $500K–$2M for a community hospital, $5M+ for a large academic medical center.`;
+    detailText = `1% Medicare payment reduction applied for ${fy} (Oct ${yearNum - 1} – Sep ${yearNum}). The reduction is applied to base operating DRG payments.`;
   } else if (penalty === 'No') {
     cls = 'not-penalized';
     statusText = 'Not Penalized';
@@ -1791,9 +1805,29 @@ function renderHACCard(fy, penalty, score) {
     detailText = `This hospital was not in the ${fy} HAC Reduction Program file.`;
   }
 
-  const scoreLine = (score !== null && score !== undefined)
-    ? `<div class="hac-card-score">HAC Score: <strong>${score.toFixed(4)}</strong></div>`
-    : '';
+  // Score line + estimated penalty (only show penalty estimate when actually penalized)
+  let scoreLine = '';
+  if (score !== null && score !== undefined) {
+    let penaltyDisplay = '';
+    if (penalty === 'Yes' && estPenalty && estPenalty > 0) {
+      // Format penalty: $3.4M for ≥1M, $850K for <1M
+      let penaltyStr;
+      if (estPenalty >= 1_000_000) {
+        penaltyStr = `$${(estPenalty / 1_000_000).toFixed(1)}M`;
+      } else if (estPenalty >= 1_000) {
+        penaltyStr = `$${Math.round(estPenalty / 1_000)}K`;
+      } else {
+        penaltyStr = `$${Math.round(estPenalty).toLocaleString()}`;
+      }
+      penaltyDisplay = `<span class="hac-card-penalty">Est. Financial Penalty: <strong>${penaltyStr}</strong></span>`;
+    }
+    scoreLine = `
+      <div class="hac-card-score">
+        <span>HAC Score: <strong>${score.toFixed(4)}</strong></span>
+        ${penaltyDisplay}
+      </div>
+    `;
+  }
 
   return `
     <div class="hac-card ${cls}">
