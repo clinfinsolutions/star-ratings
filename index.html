@@ -315,6 +315,14 @@
 
   .hospital-name-block {
     margin-bottom: 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .hospital-name-block > div {
+    flex: 1;
+    min-width: 240px;
   }
   .hospital-name-eyebrow {
     font-family: 'JetBrains Mono', monospace;
@@ -339,6 +347,54 @@
     font-size: 14px;
     color: var(--body);
   }
+  .download-scorecard-btn {
+    flex: 0 0 auto !important;
+    min-width: auto !important;
+    align-self: flex-end;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    padding: 11px 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .download-scorecard-btn:hover {
+    background: var(--ink-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(26, 39, 64, 0.2);
+  }
+  .download-scorecard-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  /* PDF rendering styles — applied only when generating PDF */
+  .pdf-rendering [data-pdf-exclude] { display: none !important; }
+  .pdf-rendering .hospital-detail {
+    padding: 32px !important;
+    max-width: 7.5in !important;
+  }
+  .pdf-footer {
+    display: none;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .pdf-rendering .pdf-footer { display: block; }
 
   /* RATING CHANGE ROW */
   .rating-change-row {
@@ -1182,6 +1238,7 @@
     .filter-chips .chip { font-size: 9px; padding: 6px 10px; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -1245,6 +1302,14 @@
       <div class="hospital-name-eyebrow">— Selected Hospital —</div>
       <div class="hospital-name" id="hospitalName">—</div>
       <div class="hospital-meta" id="hospitalMeta">—</div>
+      <button class="download-scorecard-btn" id="downloadScorecard" onclick="downloadScorecard()" data-pdf-exclude>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Scorecard
+      </button>
     </div>
 
     <!-- RATING CHANGE -->
@@ -1287,6 +1352,12 @@
       <div class="hac-insight" id="hacInsight" style="display: none;">
         <!-- Filled by JS -->
       </div>
+    </div>
+
+    <!-- PDF-only footer (hidden in browser, visible only when generating PDF) -->
+    <div class="pdf-footer">
+      <div>SOURCE: CMS Overall Hospital Star Rating · CMS Hospital-Acquired Condition Reduction Program · CMS Medicare Inpatient Provider Data</div>
+      <div id="pdfGenDate" style="margin-top: 4px;"></div>
     </div>
   </div>
 
@@ -1976,6 +2047,73 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// ============ DOWNLOAD SCORECARD AS PDF ============
+function downloadScorecard() {
+  const btn = document.getElementById('downloadScorecard');
+  const detail = document.getElementById('hospitalDetail');
+  const hospitalName = document.getElementById('hospitalName').textContent.trim();
+
+  if (!detail || detail.classList.contains('hidden')) return;
+  if (typeof html2pdf === 'undefined') {
+    alert('PDF library not loaded yet. Please try again in a moment.');
+    return;
+  }
+
+  // Stamp generation date for PDF footer
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('pdfGenDate').textContent = `Generated ${dateStr}`;
+
+  // Show busy state
+  const originalLabel = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="letter-spacing:0.1em;">GENERATING…</span>';
+
+  // Apply PDF rendering class (hides excluded elements, adjusts layout)
+  document.body.classList.add('pdf-rendering');
+
+  // Clean filename from hospital name
+  const safeName = hospitalName
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .substring(0, 60);
+  const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
+
+  // PDF options
+  const opt = {
+    margin: [0.4, 0.4, 0.4, 0.4], // inches: top, right, bottom, left
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      windowWidth: detail.scrollWidth,
+    },
+    jsPDF: {
+      unit: 'in',
+      format: 'letter',
+      orientation: 'portrait',
+      compress: true,
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+  };
+
+  html2pdf().set(opt).from(detail).save()
+    .then(() => {
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+    })
+    .catch((err) => {
+      console.error('PDF generation error:', err);
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+      alert('Sorry, there was a problem generating the PDF. Please try again.');
+    });
 }
 
 // ============ KICK OFF ============
