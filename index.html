@@ -1253,7 +1253,8 @@
     .filter-chips .chip { font-size: 9px; padding: 6px 10px; }
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body>
 
@@ -2066,16 +2067,18 @@ function escapeHtml(str) {
 
 // ============ DOWNLOAD SCORECARD AS PDF ============
 //
+// Uses html2canvas + jsPDF DIRECTLY (the previous html2pdf.js wrapper put the
+// element inside a page-sized container that introduced a 312px horizontal
+// offset — that's what caused all the left-clipping in the old export. And
+// its pagebreak plugin pushed content around, creating the blank-space-at-top
+// problem. Bypassing both fixes both bugs.)
+//
 // Strategy:
-//   1. Apply .pdf-rendering class to body (hides the download button, sets
-//      a clean white background, prevents .hospital-name-block from wrapping).
-//   2. Wait two animation frames so the layout settles BEFORE capturing.
-//   3. Capture the element at its NATURAL on-screen width — do NOT pass
-//      windowWidth or force inline widths, those re-trigger layout and
-//      crush grids/flex.
-//   4. Slice the resulting canvas into letter-sized pages, scaling the
-//      width to fit the page (aspect-correct).
-//   5. Always run a finally{} cleanup so the button never gets stuck.
+//   1. Apply .pdf-rendering class (cleans layout, hides button).
+//   2. Wait 2 animation frames + a tick so layout/fonts settle.
+//   3. html2canvas(detail) — capture the ELEMENT directly, no wrapping
+//      container, no synthetic offsets.
+//   4. Slice the canvas into letter-sized pages and add each to jsPDF.
 //
 function downloadScorecard() {
   const btn = document.getElementById('downloadScorecard');
@@ -2083,16 +2086,11 @@ function downloadScorecard() {
   const hospitalName = document.getElementById('hospitalName').textContent.trim();
 
   if (!detail || detail.classList.contains('hidden')) return;
-  if (typeof html2pdf === 'undefined') {
-    alert('PDF library still loading — please try again in a moment.');
-    return;
-  }
 
-  // jsPDF + html2canvas come bundled with html2pdf.bundle.min.js
   const h2c = window.html2canvas;
-  const jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+  const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
   if (!h2c || !jsPDFCtor) {
-    alert('PDF library failed to load. Please refresh and try again.');
+    alert('PDF library still loading — please try again in a moment.');
     return;
   }
 
@@ -2106,7 +2104,7 @@ function downloadScorecard() {
   btn.disabled = true;
   btn.innerHTML = '<span style="letter-spacing:0.1em;">GENERATING…</span>';
 
-  // Apply PDF rendering class (hides button, cleans layout)
+  // Apply PDF rendering class
   document.body.classList.add('pdf-rendering');
 
   // Safe filename
@@ -2122,73 +2120,70 @@ function downloadScorecard() {
     btn.innerHTML = originalLabel;
   };
 
-  // Wait two animation frames so the .pdf-rendering CSS fully applies
-  // and any reflow is complete BEFORE html2canvas measures the element.
+  // Wait 2 animation frames + a tick so .pdf-rendering CSS settles
+  // and any layout/font reflow completes before measuring.
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    h2c(detail, {
-      scale: 2,                  // 2× for crisp rendering on retina/print
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      // IMPORTANT: do NOT set windowWidth or any width override. Capturing
-      // the element at its natural rendered width is what keeps grids/flex
-      // intact. The PDF scales the result down to fit the page width.
-    }).then((canvas) => {
-      try {
-        const pdf = new jsPDFCtor({
-          unit: 'in', format: 'letter', orientation: 'portrait', compress: true,
-        });
+    setTimeout(() => {
+      h2c(detail, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        // No windowWidth, no onclone width overrides. Capture at natural
+        // rendered width; the PDF scales the result to fit the page.
+      }).then((canvas) => {
+        try {
+          const pdf = new jsPDFCtor({
+            unit: 'in', format: 'letter', orientation: 'portrait', compress: true,
+          });
+          const pageW = 8.5, pageH = 11, margin = 0.4;
+          const usableW = pageW - 2 * margin;   // 7.7 in
+          const usableH = pageH - 2 * margin;   // 10.2 in
 
-        const pageW = 8.5, pageH = 11, margin = 0.4;
-        const usableW = pageW - 2 * margin;   // 7.7 in
-        const usableH = pageH - 2 * margin;   // 10.2 in
+          // canvas.width fills usableW inches => pixels-per-inch:
+          const pxPerInch = canvas.width / usableW;
+          const slicePx   = Math.floor(usableH * pxPerInch);
+          const totalPages = Math.max(1, Math.ceil(canvas.height / slicePx));
 
-        // How many source-canvas pixels make one inch on the PDF.
-        // canvas.width represents the full image rendered to usableW inches.
-        const pxPerInch = canvas.width / usableW;
-        const slicePx   = Math.floor(usableH * pxPerInch);
-        const totalPages = Math.max(1, Math.ceil(canvas.height / slicePx));
+          for (let p = 0; p < totalPages; p++) {
+            if (p > 0) pdf.addPage();
 
-        for (let p = 0; p < totalPages; p++) {
-          if (p > 0) pdf.addPage();
+            const sliceStart = p * slicePx;
+            const sliceH = Math.min(slicePx, canvas.height - sliceStart);
 
-          const sliceStart = p * slicePx;
-          const sliceH = Math.min(slicePx, canvas.height - sliceStart);
+            const sc = document.createElement('canvas');
+            sc.width = canvas.width;
+            sc.height = sliceH;
+            const ctx = sc.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, sc.width, sc.height);
+            ctx.drawImage(
+              canvas,
+              0, sliceStart, canvas.width, sliceH,
+              0, 0,          canvas.width, sliceH
+            );
 
-          // Render this horizontal strip onto a temp canvas with a white
-          // background so JPEG compression doesn't introduce edge artifacts.
-          const sc = document.createElement('canvas');
-          sc.width = canvas.width;
-          sc.height = sliceH;
-          const ctx = sc.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, sc.width, sc.height);
-          ctx.drawImage(
-            canvas,
-            0, sliceStart, canvas.width, sliceH,   // source rect
-            0, 0,          canvas.width, sliceH    // dest rect (1:1)
-          );
+            const renderedH = sliceH / pxPerInch;
+            pdf.addImage(
+              sc.toDataURL('image/jpeg', 0.95),
+              'JPEG',
+              margin, margin, usableW, renderedH
+            );
+          }
 
-          const renderedH = sliceH / pxPerInch;    // in inches
-          pdf.addImage(
-            sc.toDataURL('image/jpeg', 0.95),
-            'JPEG',
-            margin, margin, usableW, renderedH
-          );
+          pdf.save(filename);
+        } catch (err) {
+          console.error('PDF assembly error:', err);
+          alert('Sorry, there was a problem generating the PDF. Please try again.');
+        } finally {
+          cleanup();
         }
-
-        pdf.save(filename);
-      } catch (err) {
-        console.error('PDF assembly error:', err);
+      }).catch((err) => {
+        console.error('PDF capture error:', err);
         alert('Sorry, there was a problem generating the PDF. Please try again.');
-      } finally {
         cleanup();
-      }
-    }).catch((err) => {
-      console.error('PDF capture error:', err);
-      alert('Sorry, there was a problem generating the PDF. Please try again.');
-      cleanup();
-    });
+      });
+    }, 50);
   }));
 }
 
