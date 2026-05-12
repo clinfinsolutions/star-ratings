@@ -2081,16 +2081,29 @@ function downloadScorecard() {
     .substring(0, 60);
   const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
 
-  // PDF options
+  // Force a consistent desktop capture width so mobile users get the same readable layout
+  const CAPTURE_WIDTH = 1100;
+
+  // PDF options — multi-page friendly, fixed-width rendering
   const opt = {
-    margin: [0.4, 0.4, 0.4, 0.4], // inches: top, right, bottom, left
+    margin: [0.4, 0.4, 0.4, 0.4], // inches
     filename: filename,
     image: { type: 'jpeg', quality: 0.95 },
     html2canvas: {
       scale: 2,
       useCORS: true,
       logging: false,
-      windowWidth: detail.scrollWidth,
+      windowWidth: CAPTURE_WIDTH,
+      width: CAPTURE_WIDTH,
+      // Render with a forced wide viewport so mobile users get the desktop layout
+      onclone: (clonedDoc) => {
+        const clonedDetail = clonedDoc.getElementById('hospitalDetail');
+        if (clonedDetail) {
+          clonedDetail.style.width = CAPTURE_WIDTH + 'px';
+          clonedDetail.style.maxWidth = CAPTURE_WIDTH + 'px';
+          clonedDetail.style.padding = '32px';
+        }
+      },
     },
     jsPDF: {
       unit: 'in',
@@ -2098,7 +2111,7 @@ function downloadScorecard() {
       orientation: 'portrait',
       compress: true,
     },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.hac-card', '.measure-breakdown', '.rating-change-row'] },
   };
 
   html2pdf().set(opt).from(detail).save()
