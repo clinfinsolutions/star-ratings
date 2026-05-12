@@ -2071,7 +2071,7 @@ function downloadScorecard() {
   btn.disabled = true;
   btn.innerHTML = '<span style="letter-spacing:0.1em;">GENERATING…</span>';
 
-  // Apply PDF rendering class (hides excluded elements)
+  // Apply PDF rendering class
   document.body.classList.add('pdf-rendering');
 
   // Clean filename
@@ -2081,87 +2081,98 @@ function downloadScorecard() {
     .substring(0, 60);
   const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
 
-  // Force consistent rendering width so mobile users get desktop-quality PDFs
-  const CAPTURE_WIDTH = 1000;
+  // Strategy: capture the element to a canvas, then build the PDF manually page-by-page.
+  // We access html2canvas and jsPDF through the html2pdf bundle's exports.
+  // The html2pdf bundle attaches html2canvas and jspdf to the window in newer versions.
 
-  // Use html2canvas directly (bundled inside html2pdf), then manually split across pages
-  // This is more reliable than html2pdf's automatic pagination
-  const html2canvas = window.html2canvas;
-  const jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
+  // Find html2canvas — it might be window.html2canvas (newer bundles) or accessible via html2pdf
+  let h2c = window.html2canvas;
+  let jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
 
-  if (!html2canvas || !jsPDF) {
-    alert('PDF libraries not available. Please refresh and try again.');
-    document.body.classList.remove('pdf-rendering');
-    btn.disabled = false;
-    btn.innerHTML = originalLabel;
+  // Fallback: if either is missing, use the simpler html2pdf() chained API
+  if (!h2c || !jsPDFCtor) {
+    // Use plain html2pdf API as fallback
+    html2pdf().from(detail).set({
+      margin: [0.4, 0.4, 0.4, 0.4],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        windowWidth: 1000,
+        onclone: (doc) => {
+          const c = doc.getElementById('hospitalDetail');
+          if (c) {
+            c.style.width = '1000px';
+            c.style.maxWidth = '1000px';
+            c.style.padding = '32px';
+            c.style.background = '#ffffff';
+          }
+        },
+      },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
+      pagebreak: { mode: 'avoid-all' },
+    }).save().then(() => {
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+    }).catch((err) => {
+      console.error('PDF error:', err);
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+      alert('Sorry, there was a problem generating the PDF.');
+    });
     return;
   }
 
-  html2canvas(detail, {
+  // Main path: html2canvas + jsPDF direct, with manual multi-page slicing
+  h2c(detail, {
     scale: 2,
     useCORS: true,
     logging: false,
-    windowWidth: CAPTURE_WIDTH,
-    onclone: (clonedDoc) => {
-      const clonedDetail = clonedDoc.getElementById('hospitalDetail');
-      if (clonedDetail) {
-        clonedDetail.style.width = CAPTURE_WIDTH + 'px';
-        clonedDetail.style.maxWidth = CAPTURE_WIDTH + 'px';
-        clonedDetail.style.padding = '32px';
-        clonedDetail.style.margin = '0';
-        clonedDetail.style.background = '#ffffff';
+    windowWidth: 1000,
+    onclone: (doc) => {
+      const c = doc.getElementById('hospitalDetail');
+      if (c) {
+        c.style.width = '1000px';
+        c.style.maxWidth = '1000px';
+        c.style.padding = '32px';
+        c.style.background = '#ffffff';
       }
     },
   }).then((canvas) => {
-    // PDF setup — US Letter portrait, in inches
-    const pdf = new jsPDF({ unit: 'in', format: 'letter', orientation: 'portrait', compress: true });
-    const pageWidth = 8.5;
-    const pageHeight = 11;
-    const margin = 0.4;
-    const contentWidth = pageWidth - (margin * 2);
-    const contentHeight = pageHeight - (margin * 2);
+    const pdf = new jsPDFCtor({ unit: 'in', format: 'letter', orientation: 'portrait', compress: true });
+    const pageW = 8.5, pageH = 11, margin = 0.4;
+    const usableW = pageW - 2 * margin;
+    const usableH = pageH - 2 * margin;
 
-    // Calculate image dimensions in PDF inches
-    // Canvas is CAPTURE_WIDTH * scale (= 2000px wide), we want it to be contentWidth inches
-    const pxToInch = contentWidth / canvas.width;
-    const imgFullHeightInches = canvas.height * pxToInch;
+    const pxPerInch = canvas.width / usableW;
+    const totalPages = Math.ceil((canvas.height / pxPerInch) / usableH);
 
-    // How many pages do we need?
-    const totalPages = Math.ceil(imgFullHeightInches / contentHeight);
+    for (let p = 0; p < totalPages; p++) {
+      if (p > 0) pdf.addPage();
+      const sliceStart = p * usableH * pxPerInch;
+      const sliceEnd = Math.min(sliceStart + usableH * pxPerInch, canvas.height);
+      const sliceH = sliceEnd - sliceStart;
 
-    // We'll slice the canvas vertically and put each slice on its own page
-    for (let pageNum = 0; pageNum < totalPages; pageNum++) {
-      if (pageNum > 0) pdf.addPage();
-
-      // Pixel range for this page's slice of the source canvas
-      const slicePxStart = pageNum * (contentHeight / pxToInch);
-      const slicePxEnd = Math.min(slicePxStart + (contentHeight / pxToInch), canvas.height);
-      const slicePxHeight = slicePxEnd - slicePxStart;
-
-      // Create a per-page canvas of just the visible slice
-      const pageCanvas = document.createElement('canvas');
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = slicePxHeight;
-      const ctx = pageCanvas.getContext('2d');
-      // White background (in case original had transparency)
+      const sc = document.createElement('canvas');
+      sc.width = canvas.width;
+      sc.height = sliceH;
+      const ctx = sc.getContext('2d');
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-      // Draw the relevant portion of the source canvas
-      ctx.drawImage(canvas, 0, slicePxStart, canvas.width, slicePxHeight,
-                            0, 0, canvas.width, slicePxHeight);
+      ctx.fillRect(0, 0, sc.width, sc.height);
+      ctx.drawImage(canvas, 0, sliceStart, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
 
-      const imgData = pageCanvas.toDataURL('image/jpeg', 0.95);
-      const sliceHeightInches = slicePxHeight * pxToInch;
-      pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, sliceHeightInches);
+      pdf.addImage(sc.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerInch);
     }
 
     pdf.save(filename);
-
     document.body.classList.remove('pdf-rendering');
     btn.disabled = false;
     btn.innerHTML = originalLabel;
   }).catch((err) => {
-    console.error('PDF generation error:', err);
+    console.error('PDF error:', err);
     document.body.classList.remove('pdf-rendering');
     btn.disabled = false;
     btn.innerHTML = originalLabel;
