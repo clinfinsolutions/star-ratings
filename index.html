@@ -1806,9 +1806,16 @@ function renderHACSection(h) {
     return;
   }
 
-  // Add Star Rating context if applicable
-  if (h.rating_2025 && h.rating_2025 >= 4 && p26 === 'Yes') {
-    insightText += ` Note: this hospital is currently rated ${h.rating_2025} stars overall.`;
+  // Add Star Rating context if applicable —
+  // Prefer the CURRENT (2026) rating; fall back to 2025 only if 2026 is missing.
+  // The note's purpose is to flag the contrast between a high star rating and an FY2026 HAC penalty.
+  if (p26 === 'Yes') {
+    if (h.rating_2026 && h.rating_2026 >= 4) {
+      insightText += ` Note: this hospital is currently rated ${h.rating_2026} stars overall in the 2026 release.`;
+    } else if (!h.rating_2026 && h.rating_2025 && h.rating_2025 >= 4) {
+      // 2026 not yet reported / not rated this cycle — surface the most recent rating
+      insightText += ` Note: this hospital was rated ${h.rating_2025} stars in the 2025 release; no 2026 rating reported.`;
+    }
   }
 
   insight.innerHTML = insightText;
