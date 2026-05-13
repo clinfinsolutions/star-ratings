@@ -2098,7 +2098,8 @@ function downloadScorecard() {
   // Stamp generation date for PDF footer
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  document.getElementById('pdfGenDate').textContent = `Generated ${dateStr}`;
+  const pdfDateEl = document.getElementById('pdfGenDate');
+  if (pdfDateEl) pdfDateEl.textContent = `Generated ${dateStr}`;
 
   // Show busy state
   const originalLabel = btn.innerHTML;
@@ -2115,93 +2116,28 @@ function downloadScorecard() {
     .substring(0, 60);
   const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
 
-  // Strategy: capture the element to a canvas, then build the PDF manually page-by-page.
-  // We access html2canvas and jsPDF through the html2pdf bundle's exports.
-  // The html2pdf bundle attaches html2canvas and jspdf to the window in newer versions.
-
-  // Find html2canvas — it might be window.html2canvas (newer bundles) or accessible via html2pdf
-  let h2c = window.html2canvas;
-  let jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-
-  // Fallback: if either is missing, use the simpler html2pdf() chained API
-  if (!h2c || !jsPDFCtor) {
-    // Use plain html2pdf API as fallback
-    html2pdf().from(detail).set({
-      margin: [0.4, 0.4, 0.4, 0.4],
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        windowWidth: 1000,
-        onclone: (doc) => {
-          const c = doc.getElementById('hospitalDetail');
-          if (c) {
-            c.style.width = '1000px';
-            c.style.maxWidth = '1000px';
-            c.style.padding = '32px';
-            c.style.background = '#ffffff';
-          }
-        },
+  // Simple html2pdf approach (the one that worked before the 2026 update)
+  html2pdf().from(detail).set({
+    margin: [0.4, 0.4, 0.4, 0.4],
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      windowWidth: 1000,
+      onclone: (doc) => {
+        const c = doc.getElementById('hospitalDetail');
+        if (c) {
+          c.style.width = '1000px';
+          c.style.maxWidth = '1000px';
+          c.style.padding = '32px';
+          c.style.background = '#ffffff';
+        }
       },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
-      pagebreak: { mode: 'avoid-all' },
-    }).save().then(() => {
-      document.body.classList.remove('pdf-rendering');
-      btn.disabled = false;
-      btn.innerHTML = originalLabel;
-    }).catch((err) => {
-      console.error('PDF error:', err);
-      document.body.classList.remove('pdf-rendering');
-      btn.disabled = false;
-      btn.innerHTML = originalLabel;
-      alert('Sorry, there was a problem generating the PDF.');
-    });
-    return;
-  }
-
-  // Main path: html2canvas + jsPDF direct, with manual multi-page slicing
-  h2c(detail, {
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    windowWidth: 1000,
-    onclone: (doc) => {
-      const c = doc.getElementById('hospitalDetail');
-      if (c) {
-        c.style.width = '1000px';
-        c.style.maxWidth = '1000px';
-        c.style.padding = '32px';
-        c.style.background = '#ffffff';
-      }
     },
-  }).then((canvas) => {
-    const pdf = new jsPDFCtor({ unit: 'in', format: 'letter', orientation: 'portrait', compress: true });
-    const pageW = 8.5, pageH = 11, margin = 0.4;
-    const usableW = pageW - 2 * margin;
-    const usableH = pageH - 2 * margin;
-
-    const pxPerInch = canvas.width / usableW;
-    const totalPages = Math.ceil((canvas.height / pxPerInch) / usableH);
-
-    for (let p = 0; p < totalPages; p++) {
-      if (p > 0) pdf.addPage();
-      const sliceStart = p * usableH * pxPerInch;
-      const sliceEnd = Math.min(sliceStart + usableH * pxPerInch, canvas.height);
-      const sliceH = sliceEnd - sliceStart;
-
-      const sc = document.createElement('canvas');
-      sc.width = canvas.width;
-      sc.height = sliceH;
-      const ctx = sc.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, sc.width, sc.height);
-      ctx.drawImage(canvas, 0, sliceStart, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
-
-      pdf.addImage(sc.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerInch);
-    }
-
-    pdf.save(filename);
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
+    pagebreak: { mode: 'avoid-all' },
+  }).save().then(() => {
     document.body.classList.remove('pdf-rendering');
     btn.disabled = false;
     btn.innerHTML = originalLabel;
@@ -2210,7 +2146,7 @@ function downloadScorecard() {
     document.body.classList.remove('pdf-rendering');
     btn.disabled = false;
     btn.innerHTML = originalLabel;
-    alert('Sorry, there was a problem generating the PDF. Please try again.');
+    alert('Sorry, there was a problem generating the PDF.');
   });
 }
 
