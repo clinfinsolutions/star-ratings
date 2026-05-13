@@ -396,6 +396,57 @@
   }
   .pdf-rendering .pdf-footer { display: block; }
 
+  /* PRINT STYLES — for browser-native Print → Save as PDF */
+  @media print {
+    @page { size: letter portrait; margin: 0.4in; }
+    
+    /* Hide everything by default */
+    body * { visibility: hidden; }
+    
+    /* Show the hospital detail and all its descendants */
+    #hospitalDetail,
+    #hospitalDetail * { visibility: visible; }
+    
+    /* Reposition the hospital detail to the top of the page */
+    #hospitalDetail {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100% !important;
+      max-width: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: white !important;
+      box-shadow: none !important;
+    }
+    
+    /* Hide the print button itself within the detail */
+    [data-pdf-exclude] { display: none !important; visibility: hidden !important; }
+    
+    /* Show the PDF footer when printing */
+    .pdf-footer {
+      display: block !important;
+      visibility: visible !important;
+      margin-top: 24px !important;
+      padding-top: 12px !important;
+      border-top: 1px solid #c5cbd4 !important;
+    }
+    
+    /* Avoid splitting key sections across pages */
+    .hac-row, .hac-card, .measure-breakdown, .rating-change-row {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    
+    /* Keep colors readable on paper */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    
+    body { background: white !important; }
+  }
+
   /* RATING CHANGE ROW */
   .rating-change-row {
     display: grid;
@@ -1256,7 +1307,6 @@
     .filter-chips .chip { font-size: 9px; padding: 6px 10px; }
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -1317,11 +1367,11 @@
       <div class="hospital-meta" id="hospitalMeta">—</div>
       <button class="download-scorecard-btn" id="downloadScorecard" onclick="downloadScorecard()" data-pdf-exclude>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 6px;">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
         </svg>
-        Download Scorecard
+        Print Scorecard
       </button>
     </div>
 
@@ -2085,69 +2135,19 @@ function escapeHtml(str) {
 
 // ============ DOWNLOAD SCORECARD AS PDF ============
 function downloadScorecard() {
-  const btn = document.getElementById('downloadScorecard');
   const detail = document.getElementById('hospitalDetail');
-  const hospitalName = document.getElementById('hospitalName').textContent.trim();
-
   if (!detail || detail.classList.contains('hidden')) return;
-  if (typeof html2pdf === 'undefined') {
-    alert('PDF library not loaded yet. Please try again in a moment.');
-    return;
-  }
 
-  // Stamp generation date for PDF footer
+  // Stamp generation date for the print footer
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const pdfDateEl = document.getElementById('pdfGenDate');
   if (pdfDateEl) pdfDateEl.textContent = `Generated ${dateStr}`;
 
-  // Show busy state
-  const originalLabel = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span style="letter-spacing:0.1em;">GENERATING…</span>';
-
-  // Apply PDF rendering class
-  document.body.classList.add('pdf-rendering');
-
-  // Clean filename
-  const safeName = hospitalName
-    .replace(/[^a-zA-Z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 60);
-  const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
-
-  // Simple html2pdf approach (the one that worked before the 2026 update)
-  html2pdf().from(detail).set({
-    margin: [0.4, 0.4, 0.4, 0.4],
-    filename: filename,
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      windowWidth: 1000,
-      onclone: (doc) => {
-        const c = doc.getElementById('hospitalDetail');
-        if (c) {
-          c.style.width = '1000px';
-          c.style.maxWidth = '1000px';
-          c.style.padding = '32px';
-          c.style.background = '#ffffff';
-        }
-      },
-    },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
-    pagebreak: { mode: 'avoid-all' },
-  }).save().then(() => {
-    document.body.classList.remove('pdf-rendering');
-    btn.disabled = false;
-    btn.innerHTML = originalLabel;
-  }).catch((err) => {
-    console.error('PDF error:', err);
-    document.body.classList.remove('pdf-rendering');
-    btn.disabled = false;
-    btn.innerHTML = originalLabel;
-    alert('Sorry, there was a problem generating the PDF.');
-  });
+  // Open the browser's native print dialog.
+  // The @media print stylesheet hides everything except the hospital detail card.
+  // User selects "Save as PDF" from the print dialog destination.
+  window.print();
 }
 
 // ============ KICK OFF ============
