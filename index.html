@@ -432,6 +432,19 @@
       border-top: 1px solid #c5cbd4 !important;
     }
     
+    /* Stack the hospital name block vertically in print
+       (its on-screen flex layout has min-width: 240px per child,
+       which causes ugly wrapping at the ~740px print viewport) */
+    .hospital-name-block {
+      display: block !important;
+    }
+    .hospital-name-block > div {
+      flex: none !important;
+      min-width: 0 !important;
+      width: auto !important;
+      margin-bottom: 8px !important;
+    }
+    
     /* Avoid splitting key sections across pages */
     .hac-row, .hac-card, .measure-breakdown, .rating-change-row {
       page-break-inside: avoid;
@@ -888,7 +901,7 @@
     line-height: 1.5;
   }
 
-  @media (max-width: 900px) {
+  @media screen and (max-width: 900px) {
     .measure-row { grid-template-columns: 1fr 1.5fr 50px; gap: 10px; }
     .measure-scale-labels { font-size: 8px; }
   }
@@ -1212,7 +1225,7 @@
     border-bottom: 1px solid var(--ink);
   }
   
-  @media (max-width: 900px) {
+  @media screen and (max-width: 900px) {
     .methodology-section { padding: 40px 24px; }
     .methodology-grid { grid-template-columns: 1fr; gap: 20px; }
   }
@@ -1270,7 +1283,7 @@
   }
 
   /* ============ RESPONSIVE ============ */
-  @media (max-width: 900px) {
+  @media screen and (max-width: 900px) {
     .hero { padding: 40px 24px 32px 24px; }
     .hero-title { font-size: 32px; }
     .hero-deck { font-size: 16px; }
