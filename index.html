@@ -379,24 +379,9 @@
   /* PDF rendering styles — applied only when generating PDF */
   .pdf-rendering [data-pdf-exclude] { display: none !important; }
   .pdf-rendering .hospital-detail {
-    /* Render at natural on-screen width. Do NOT clamp width here — the
-       PDF capture scales the rendered canvas to fit the page width, and
-       clamping triggers responsive/flex-wrap layouts that break grids. */
-    background: var(--white) !important;
+    padding: 32px !important;
+    max-width: 7.5in !important;
   }
-  /* Keep the name block on one clean row in PDF mode so the title doesn't
-     wrap into the eyebrow's column. Also remove the button's flex-end
-     alignment side-effect once it's display:none'd. */
-  .pdf-rendering .hospital-name-block {
-    display: block !important;
-  }
-  .pdf-rendering .hospital-name-block > div {
-    flex: none !important;
-    min-width: 0 !important;
-    width: auto !important;
-  }
-  .pdf-rendering .hospital-name-eyebrow { margin-bottom: 12px; }
-  .pdf-rendering .hospital-name { margin-bottom: 6px; }
   .pdf-footer {
     display: none;
     margin-top: 32px;
@@ -489,6 +474,19 @@
   }
   .rating-change-indicator.up { background: var(--accent-up); }
   .rating-change-indicator.flat { background: var(--accent-flat); color: var(--ink); }
+  .rating-change-indicator.down { background: var(--warn-orange, #b8693d); }
+  .rating-change-indicator.newly-rated {
+    background: var(--paper-deep);
+    color: var(--ink);
+    border-left: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+  }
+  .rating-change-indicator.lost-rating {
+    background: var(--paper-deep);
+    color: var(--muted);
+    border-left: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+  }
   .rating-change-indicator.pending {
     background: var(--paper-deep);
     color: var(--ink);
@@ -513,6 +511,8 @@
     margin-bottom: 4px;
   }
   .rating-change-indicator.flat .rating-change-label,
+  .rating-change-indicator.newly-rated .rating-change-label,
+  .rating-change-indicator.lost-rating .rating-change-label,
   .rating-change-indicator.pending .rating-change-label { color: var(--muted); }
   .rating-change-value {
     font-family: 'Playfair Display', serif;
@@ -521,8 +521,11 @@
     letter-spacing: -0.01em;
     line-height: 1;
   }
-  .rating-change-indicator.pending .rating-change-value {
-    font-size: 16px;
+  .rating-change-indicator.pending .rating-change-value,
+  .rating-change-indicator.newly-rated .rating-change-value,
+  .rating-change-indicator.lost-rating .rating-change-value,
+  .rating-change-indicator.flat .rating-change-value {
+    font-size: 18px;
     font-style: italic;
     font-weight: 500;
   }
@@ -1253,8 +1256,7 @@
     .filter-chips .chip { font-size: 9px; padding: 6px 10px; }
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
 
@@ -1264,15 +1266,10 @@
 
 <div class="page">
 
-  <!-- DEMO BANNER (will be removed/hidden after May 13) -->
-  <div class="demo-banner" id="demoBanner">
-    DEMO MODE · 2026 STAR RATINGS PUBLISH MAY 13, 2026 · CHECK BACK FOR LIVE DATA
-  </div>
-
   <!-- TOP STRIP -->
   <div class="top-strip">
     <div><strong>CLINFIN SOLUTIONS</strong> · ALIGNIQ™ FRAMEWORK</div>
-    <div class="top-strip-meta" id="topStripMeta">2026 STAR RATINGS · PRE-LAUNCH</div>
+    <div class="top-strip-meta" id="topStripMeta">2026 STAR RATINGS · LIVE</div>
   </div>
 
   <!-- HERO -->
@@ -1281,7 +1278,7 @@
     <h1 class="hero-title">2026 Hospital Star Ratings <em>Explorer</em></h1>
     <p class="hero-deck">The Star Rating tells one story. The HAC penalty tells another. Search any hospital. See where they agree — and where they don't.</p>
     <div class="hero-meta">
-      <div class="hero-meta-item">STAR RATINGS: <strong>2025 Release</strong></div>
+      <div class="hero-meta-item">STAR RATINGS: <strong>2025 + 2026</strong></div>
       <div class="hero-meta-item">HAC PROGRAM: <strong>FY2025 + FY2026</strong></div>
       <div class="hero-meta-item">COVERAGE: <strong id="coverageCount">— hospitals · — rated</strong></div>
       <div class="hero-meta-item">PENALIZED FY26: <strong id="hacCount">—</strong></div>
@@ -1336,19 +1333,19 @@
         <div class="rating-card-stars" id="stars2025"></div>
       </div>
 
-      <div class="rating-change-indicator pending" id="ratingChangeIndicator">
-        <div class="rating-change-arrow">↦</div>
+      <div class="rating-change-indicator" id="ratingChangeIndicator">
+        <div class="rating-change-arrow" id="ratingChangeArrow">→</div>
         <div class="rating-change-label">Year Over Year</div>
-        <div class="rating-change-value">May 13 release</div>
+        <div class="rating-change-value" id="ratingChangeValue">—</div>
       </div>
 
       <div class="rating-card current">
         <div class="rating-card-label">2026 Rating</div>
-        <div class="rating-card-value unavailable" id="rating2026">Pending<br>May 13</div>
+        <div class="rating-card-value" id="rating2026">—</div>
         <div class="rating-card-stars" id="stars2026"></div>
       </div>
     </div>
-    <p class="rating-source-note"><em>Source: CMS Overall Hospital Star Rating · 2025 Release published Apr 30, 2025 · 2026 Release scheduled May 13, 2026.</em></p>
+    <p class="rating-source-note"><em>Source: CMS Overall Hospital Star Rating · 2025 Release published Apr 30, 2025 · 2026 Release published May 13, 2026.</em></p>
 
     <!-- HAC SECTION -->
     <div class="hac-section">
@@ -1399,7 +1396,7 @@
         <div class="methodology-block">
           <div class="methodology-block-title">CMS Overall Hospital Star Rating</div>
           <div class="methodology-block-body">
-            Sourced from publicly available CMS Provider data. The <strong>2025 Release</strong> was published April 30, 2025 and reflects measure performance windows that vary by individual measure (typically 12–36 months ending 6 months prior to release). The <strong>2026 Release</strong> is scheduled for May 13, 2026; this tool will display the comparison once the release is live.
+            Sourced from publicly available CMS Provider data. The <strong>2025 Release</strong> was published April 30, 2025 and the <strong>2026 Release</strong> was published May 13, 2026. Each release reflects measure performance windows that vary by individual measure (typically 12–36 months ending 6 months prior to release).
           </div>
         </div>
         <div class="methodology-block">
@@ -1468,7 +1465,7 @@ function initializePage() {
   // Populate hero metadata
   document.getElementById('coverageCount').textContent = 
     METADATA.totals.all_hospitals.toLocaleString() + ' hospitals · ' + 
-    METADATA.totals.rated_2025.toLocaleString() + ' rated';
+    METADATA.totals.rated_2026.toLocaleString() + ' rated';
   document.getElementById('hacCount').textContent = 
     METADATA.totals.hac_penalized_fy_2026.toLocaleString() + ' hospitals';
 
@@ -1598,21 +1595,23 @@ function renderHospitalDetail(h) {
     stars2025El.innerHTML = '';
   }
 
-  // 2026 Rating - placeholder pre-launch
+  // 2026 Rating — now live
   const rating2026El = document.getElementById('rating2026');
   const stars2026El = document.getElementById('stars2026');
   const indicator = document.getElementById('ratingChangeIndicator');
   
-  if (h.rating_2026) {
-    // Post-May 13 — show real change
+  // Reset indicator state
+  indicator.classList.remove('pending', 'up', 'down', 'flat', 'newly-rated', 'lost-rating');
+
+  if (h.rating_2026 && h.rating_2025) {
+    // Both years present — show YoY movement
     rating2026El.classList.remove('unavailable');
     rating2026El.innerHTML = `${h.rating_2026}<span class="rating-card-value-suffix">stars</span>`;
     stars2026El.innerHTML = renderStars(h.rating_2026);
-    
+
     const delta = h.rating_2026 - h.rating_2025;
-    indicator.classList.remove('pending');
     if (delta < 0) {
-      indicator.classList.remove('up', 'flat');
+      indicator.classList.add('down');
       indicator.innerHTML = `
         <div class="rating-change-arrow">↓</div>
         <div class="rating-change-label">Year Over Year</div>
@@ -1633,17 +1632,38 @@ function renderHospitalDetail(h) {
         <div class="rating-change-value">No Change</div>
       `;
     }
-  } else {
-    // Pre-May 13 placeholder
-    rating2026El.classList.add('unavailable');
-    rating2026El.innerHTML = 'Pending<br>May 13';
-    stars2026El.innerHTML = '';
-    indicator.classList.remove('up', 'flat');
-    indicator.classList.add('pending');
+  } else if (h.rating_2026 && !h.rating_2025) {
+    // Newly rated in 2026 (wasn't rated last year)
+    rating2026El.classList.remove('unavailable');
+    rating2026El.innerHTML = `${h.rating_2026}<span class="rating-card-value-suffix">stars</span>`;
+    stars2026El.innerHTML = renderStars(h.rating_2026);
+    indicator.classList.add('newly-rated');
     indicator.innerHTML = `
-      <div class="rating-change-arrow">↦</div>
+      <div class="rating-change-arrow">✦</div>
       <div class="rating-change-label">Year Over Year</div>
-      <div class="rating-change-value">May 13 release</div>
+      <div class="rating-change-value">Newly Rated</div>
+    `;
+  } else if (!h.rating_2026 && h.rating_2025) {
+    // Had a rating in 2025 but not in 2026
+    rating2026El.classList.add('unavailable');
+    rating2026El.innerHTML = 'Not Rated';
+    stars2026El.innerHTML = '';
+    indicator.classList.add('lost-rating');
+    indicator.innerHTML = `
+      <div class="rating-change-arrow">—</div>
+      <div class="rating-change-label">Year Over Year</div>
+      <div class="rating-change-value">Lost Rating</div>
+    `;
+  } else {
+    // Neither year had a rating
+    rating2026El.classList.add('unavailable');
+    rating2026El.innerHTML = 'Not Rated';
+    stars2026El.innerHTML = '';
+    indicator.classList.add('flat');
+    indicator.innerHTML = `
+      <div class="rating-change-arrow">—</div>
+      <div class="rating-change-label">Year Over Year</div>
+      <div class="rating-change-value">Not Rated</div>
     `;
   }
 
@@ -2066,31 +2086,14 @@ function escapeHtml(str) {
 }
 
 // ============ DOWNLOAD SCORECARD AS PDF ============
-//
-// Uses html2canvas + jsPDF DIRECTLY (the previous html2pdf.js wrapper put the
-// element inside a page-sized container that introduced a 312px horizontal
-// offset — that's what caused all the left-clipping in the old export. And
-// its pagebreak plugin pushed content around, creating the blank-space-at-top
-// problem. Bypassing both fixes both bugs.)
-//
-// Strategy:
-//   1. Apply .pdf-rendering class (cleans layout, hides button).
-//   2. Wait 2 animation frames + a tick so layout/fonts settle.
-//   3. html2canvas(detail) — capture the ELEMENT directly, no wrapping
-//      container, no synthetic offsets.
-//   4. Slice the canvas into letter-sized pages and add each to jsPDF.
-//
 function downloadScorecard() {
   const btn = document.getElementById('downloadScorecard');
   const detail = document.getElementById('hospitalDetail');
   const hospitalName = document.getElementById('hospitalName').textContent.trim();
 
   if (!detail || detail.classList.contains('hidden')) return;
-
-  const h2c = window.html2canvas;
-  const jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
-  if (!h2c || !jsPDFCtor) {
-    alert('PDF library still loading — please try again in a moment.');
+  if (typeof html2pdf === 'undefined') {
+    alert('PDF library not loaded yet. Please try again in a moment.');
     return;
   }
 
@@ -2099,7 +2102,7 @@ function downloadScorecard() {
   const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('pdfGenDate').textContent = `Generated ${dateStr}`;
 
-  // Busy state on the button
+  // Show busy state
   const originalLabel = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span style="letter-spacing:0.1em;">GENERATING…</span>';
@@ -2107,84 +2110,110 @@ function downloadScorecard() {
   // Apply PDF rendering class
   document.body.classList.add('pdf-rendering');
 
-  // Safe filename
+  // Clean filename
   const safeName = hospitalName
     .replace(/[^a-zA-Z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
     .substring(0, 60);
   const filename = `${safeName || 'Hospital'}_Scorecard.pdf`;
 
-  const cleanup = () => {
+  // Strategy: capture the element to a canvas, then build the PDF manually page-by-page.
+  // We access html2canvas and jsPDF through the html2pdf bundle's exports.
+  // The html2pdf bundle attaches html2canvas and jspdf to the window in newer versions.
+
+  // Find html2canvas — it might be window.html2canvas (newer bundles) or accessible via html2pdf
+  let h2c = window.html2canvas;
+  let jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+
+  // Fallback: if either is missing, use the simpler html2pdf() chained API
+  if (!h2c || !jsPDFCtor) {
+    // Use plain html2pdf API as fallback
+    html2pdf().from(detail).set({
+      margin: [0.4, 0.4, 0.4, 0.4],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        windowWidth: 1000,
+        onclone: (doc) => {
+          const c = doc.getElementById('hospitalDetail');
+          if (c) {
+            c.style.width = '1000px';
+            c.style.maxWidth = '1000px';
+            c.style.padding = '32px';
+            c.style.background = '#ffffff';
+          }
+        },
+      },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
+      pagebreak: { mode: 'avoid-all' },
+    }).save().then(() => {
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+    }).catch((err) => {
+      console.error('PDF error:', err);
+      document.body.classList.remove('pdf-rendering');
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+      alert('Sorry, there was a problem generating the PDF.');
+    });
+    return;
+  }
+
+  // Main path: html2canvas + jsPDF direct, with manual multi-page slicing
+  h2c(detail, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    windowWidth: 1000,
+    onclone: (doc) => {
+      const c = doc.getElementById('hospitalDetail');
+      if (c) {
+        c.style.width = '1000px';
+        c.style.maxWidth = '1000px';
+        c.style.padding = '32px';
+        c.style.background = '#ffffff';
+      }
+    },
+  }).then((canvas) => {
+    const pdf = new jsPDFCtor({ unit: 'in', format: 'letter', orientation: 'portrait', compress: true });
+    const pageW = 8.5, pageH = 11, margin = 0.4;
+    const usableW = pageW - 2 * margin;
+    const usableH = pageH - 2 * margin;
+
+    const pxPerInch = canvas.width / usableW;
+    const totalPages = Math.ceil((canvas.height / pxPerInch) / usableH);
+
+    for (let p = 0; p < totalPages; p++) {
+      if (p > 0) pdf.addPage();
+      const sliceStart = p * usableH * pxPerInch;
+      const sliceEnd = Math.min(sliceStart + usableH * pxPerInch, canvas.height);
+      const sliceH = sliceEnd - sliceStart;
+
+      const sc = document.createElement('canvas');
+      sc.width = canvas.width;
+      sc.height = sliceH;
+      const ctx = sc.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, sc.width, sc.height);
+      ctx.drawImage(canvas, 0, sliceStart, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+
+      pdf.addImage(sc.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, usableW, sliceH / pxPerInch);
+    }
+
+    pdf.save(filename);
     document.body.classList.remove('pdf-rendering');
     btn.disabled = false;
     btn.innerHTML = originalLabel;
-  };
-
-  // Wait 2 animation frames + a tick so .pdf-rendering CSS settles
-  // and any layout/font reflow completes before measuring.
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    setTimeout(() => {
-      h2c(detail, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        // No windowWidth, no onclone width overrides. Capture at natural
-        // rendered width; the PDF scales the result to fit the page.
-      }).then((canvas) => {
-        try {
-          const pdf = new jsPDFCtor({
-            unit: 'in', format: 'letter', orientation: 'portrait', compress: true,
-          });
-          const pageW = 8.5, pageH = 11, margin = 0.4;
-          const usableW = pageW - 2 * margin;   // 7.7 in
-          const usableH = pageH - 2 * margin;   // 10.2 in
-
-          // canvas.width fills usableW inches => pixels-per-inch:
-          const pxPerInch = canvas.width / usableW;
-          const slicePx   = Math.floor(usableH * pxPerInch);
-          const totalPages = Math.max(1, Math.ceil(canvas.height / slicePx));
-
-          for (let p = 0; p < totalPages; p++) {
-            if (p > 0) pdf.addPage();
-
-            const sliceStart = p * slicePx;
-            const sliceH = Math.min(slicePx, canvas.height - sliceStart);
-
-            const sc = document.createElement('canvas');
-            sc.width = canvas.width;
-            sc.height = sliceH;
-            const ctx = sc.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, sc.width, sc.height);
-            ctx.drawImage(
-              canvas,
-              0, sliceStart, canvas.width, sliceH,
-              0, 0,          canvas.width, sliceH
-            );
-
-            const renderedH = sliceH / pxPerInch;
-            pdf.addImage(
-              sc.toDataURL('image/jpeg', 0.95),
-              'JPEG',
-              margin, margin, usableW, renderedH
-            );
-          }
-
-          pdf.save(filename);
-        } catch (err) {
-          console.error('PDF assembly error:', err);
-          alert('Sorry, there was a problem generating the PDF. Please try again.');
-        } finally {
-          cleanup();
-        }
-      }).catch((err) => {
-        console.error('PDF capture error:', err);
-        alert('Sorry, there was a problem generating the PDF. Please try again.');
-        cleanup();
-      });
-    }, 50);
-  }));
+  }).catch((err) => {
+    console.error('PDF error:', err);
+    document.body.classList.remove('pdf-rendering');
+    btn.disabled = false;
+    btn.innerHTML = originalLabel;
+    alert('Sorry, there was a problem generating the PDF. Please try again.');
+  });
 }
 
 // ============ KICK OFF ============

@@ -1,56 +1,96 @@
 {
   "totals": {
-    "all_hospitals": 5426,
-    "rated_2025": 2866,
-    "in_hac_program": 3055,
-    "hac_penalized_fy_2025": 710,
+    "all_hospitals": 5432,
+    "rated_2025": 2862,
+    "rated_2026": 3182,
+    "in_hac_program": 3045,
+    "hac_penalized_fy_2025": 709,
     "hac_penalized_fy_2026": 719,
-    "rated_and_in_hac": 2530
+    "rated_and_in_hac": 2661
   },
   "rating_distribution_2025": {
     "1": 229,
-    "2": 649,
+    "2": 647,
     "3": 935,
     "4": 765,
-    "5": 288
+    "5": 286
+  },
+  "rating_distribution_2026": {
+    "1": 199,
+    "2": 662,
+    "3": 987,
+    "4": 950,
+    "5": 384
+  },
+  "rating_movement_counts": {
+    "up": 812,
+    "down": 509,
+    "same": 1514,
+    "newly_rated": 347,
+    "lost_rating": 27
+  },
+  "rating_change_distribution": {
+    "4->4": 437,
+    "2->4": 43,
+    "2->2": 319,
+    "2->3": 221,
+    "3->3": 479,
+    "3->5": 21,
+    "4->5": 139,
+    "5->5": 181,
+    "3->2": 154,
+    "3->4": 260,
+    "1->1": 98,
+    "5->4": 86,
+    "1->2": 109,
+    "1->3": 16,
+    "2->1": 57,
+    "4->3": 157,
+    "4->2": 23,
+    "5->3": 15,
+    "3->1": 11,
+    "1->4": 2,
+    "4->1": 4,
+    "5->2": 2,
+    "2->5": 1
   },
   "cross_tab": {
     "1": {
-      "total_rated": 229,
-      "in_hac_program": 209,
-      "penalized": 112,
-      "penalty_rate": 53.6
+      "total_rated": 199,
+      "in_hac_program": 171,
+      "penalized": 87,
+      "penalty_rate": 50.9
     },
     "2": {
-      "total_rated": 649,
-      "in_hac_program": 604,
-      "penalized": 195,
-      "penalty_rate": 32.3
+      "total_rated": 662,
+      "in_hac_program": 570,
+      "penalized": 225,
+      "penalty_rate": 39.5
     },
     "3": {
-      "total_rated": 935,
-      "in_hac_program": 828,
-      "penalized": 185,
-      "penalty_rate": 22.3
+      "total_rated": 987,
+      "in_hac_program": 848,
+      "penalized": 193,
+      "penalty_rate": 22.8
     },
     "4": {
-      "total_rated": 765,
-      "in_hac_program": 673,
-      "penalized": 99,
-      "penalty_rate": 14.7
+      "total_rated": 950,
+      "in_hac_program": 782,
+      "penalized": 130,
+      "penalty_rate": 16.6
     },
     "5": {
-      "total_rated": 288,
-      "in_hac_program": 216,
-      "penalized": 21,
-      "penalty_rate": 9.7
+      "total_rated": 384,
+      "in_hac_program": 290,
+      "penalized": 18,
+      "penalty_rate": 6.2
     }
   },
   "movement_counts": {
     "persistent": 442,
     "newly_penalized": 277,
-    "escaped": 268,
-    "clean": 2006
+    "escaped": 267,
+    "clean": 1997
   },
   "state_aggregates": [
     {
@@ -134,6 +174,16 @@
       "penalty_rate_fy26": 40.6
     },
     {
+      "state": "AL",
+      "total_in_hac": 75,
+      "penalized_fy26": 29,
+      "penalized_fy25": 25,
+      "persistent": 19,
+      "newly_penalized": 10,
+      "escaped": 6,
+      "penalty_rate_fy26": 38.7
+    },
+    {
       "state": "NH",
       "total_in_hac": 13,
       "penalized_fy26": 5,
@@ -142,16 +192,6 @@
       "newly_penalized": 3,
       "escaped": 0,
       "penalty_rate_fy26": 38.5
-    },
-    {
-      "state": "AL",
-      "total_in_hac": 77,
-      "penalized_fy26": 29,
-      "penalized_fy25": 25,
-      "persistent": 19,
-      "newly_penalized": 10,
-      "escaped": 6,
-      "penalty_rate_fy26": 37.7
     },
     {
       "state": "MA",
@@ -255,13 +295,23 @@
     },
     {
       "state": "CA",
-      "total_in_hac": 277,
+      "total_in_hac": 276,
       "penalized_fy26": 76,
       "penalized_fy25": 72,
       "persistent": 48,
       "newly_penalized": 28,
       "escaped": 24,
-      "penalty_rate_fy26": 27.4
+      "penalty_rate_fy26": 27.5
+    },
+    {
+      "state": "PA",
+      "total_in_hac": 132,
+      "penalized_fy26": 36,
+      "penalized_fy25": 31,
+      "persistent": 18,
+      "newly_penalized": 18,
+      "escaped": 13,
+      "penalty_rate_fy26": 27.3
     },
     {
       "state": "IL",
@@ -272,16 +322,6 @@
       "newly_penalized": 10,
       "escaped": 10,
       "penalty_rate_fy26": 27.2
-    },
-    {
-      "state": "PA",
-      "total_in_hac": 133,
-      "penalized_fy26": 36,
-      "penalized_fy25": 31,
-      "persistent": 18,
-      "newly_penalized": 18,
-      "escaped": 13,
-      "penalty_rate_fy26": 27.1
     },
     {
       "state": "OH",
@@ -484,34 +524,34 @@
       "penalty_rate_fy26": 12.2
     },
     {
-      "state": "TX",
-      "total_in_hac": 284,
-      "penalized_fy26": 32,
-      "penalized_fy25": 33,
-      "persistent": 14,
-      "newly_penalized": 18,
-      "escaped": 19,
-      "penalty_rate_fy26": 11.3
-    },
-    {
       "state": "CT",
-      "total_in_hac": 27,
+      "total_in_hac": 26,
       "penalized_fy26": 3,
       "penalized_fy25": 3,
       "persistent": 1,
       "newly_penalized": 2,
       "escaped": 2,
-      "penalty_rate_fy26": 11.1
+      "penalty_rate_fy26": 11.5
+    },
+    {
+      "state": "TX",
+      "total_in_hac": 281,
+      "penalized_fy26": 32,
+      "penalized_fy25": 32,
+      "persistent": 14,
+      "newly_penalized": 18,
+      "escaped": 18,
+      "penalty_rate_fy26": 11.4
     },
     {
       "state": "FL",
-      "total_in_hac": 169,
+      "total_in_hac": 167,
       "penalized_fy26": 18,
       "penalized_fy25": 18,
       "persistent": 11,
       "newly_penalized": 7,
       "escaped": 7,
-      "penalty_rate_fy26": 10.7
+      "penalty_rate_fy26": 10.8
     },
     {
       "state": "NJ",
@@ -564,11 +604,13 @@
       "penalty_rate_fy26": 0.0
     }
   ],
-  "high_rated_penalized_count": 120,
-  "high_rated_penalized_5star": 21,
-  "high_rated_penalized_4star": 99,
+  "high_rated_penalized_count": 148,
+  "high_rated_penalized_5star": 18,
+  "high_rated_penalized_4star": 130,
+  "dropped_and_newly_penalized_count": 66,
   "data_sources": {
-    "star_ratings": "CMS Care Compare · 2025 Release",
+    "star_ratings_2025": "CMS Care Compare · 2025 Release",
+    "star_ratings_2026": "CMS Care Compare · 2026 Release",
     "hac_program_2025": "CMS HAC Reduction Program · FY2025",
     "hac_program_2026": "CMS HAC Reduction Program · FY2026"
   }
